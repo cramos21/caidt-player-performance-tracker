@@ -17,77 +17,81 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   };
 
   return (
-    <Card className="border-2 border-dashed border-gray-300 bg-gray-50">
-      <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center gap-2">
-          <Bluetooth className="w-6 h-6 text-blue-600" />
+    <Card className="border-2 border-dashed border-border bg-card/50 backdrop-blur-sm">
+      <CardHeader className="text-center pb-4">
+        <CardTitle className="flex items-center justify-center gap-2 text-lg sm:text-xl">
+          <Bluetooth className="w-6 h-6 text-primary" />
           Connect Your Soccer Tracker
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Connect your physical soccer boot tracker to start collecting real-time performance data
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-              <Bluetooth className="w-6 h-6 text-blue-600" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="text-center space-y-3">
+            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+              <Bluetooth className="w-6 h-6 text-primary" />
             </div>
-            <h4 className="font-semibold">Step 1</h4>
-            <p className="text-sm text-gray-600">Turn on your tracker and enable Bluetooth</p>
+            <h4 className="font-semibold text-foreground">Step 1</h4>
+            <p className="text-sm text-muted-foreground">Turn on your tracker and enable Bluetooth</p>
           </div>
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-              <Smartphone className="w-6 h-6 text-green-600" />
+          <div className="text-center space-y-3">
+            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+              <Smartphone className="w-6 h-6 text-primary" />
             </div>
-            <h4 className="font-semibold">Step 2</h4>
-            <p className="text-sm text-gray-600">Make sure your phone's Bluetooth is enabled</p>
+            <h4 className="font-semibold text-foreground">Step 2</h4>
+            <p className="text-sm text-muted-foreground">Make sure your phone's Bluetooth is enabled</p>
           </div>
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
-              <CheckCircle className="w-6 h-6 text-purple-600" />
+          <div className="text-center space-y-3">
+            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle className="w-6 h-6 text-primary" />
             </div>
-            <h4 className="font-semibold">Step 3</h4>
-            <p className="text-sm text-gray-600">Click connect and start tracking</p>
+            <h4 className="font-semibold text-foreground">Step 3</h4>
+            <p className="text-sm text-muted-foreground">Click connect and start tracking</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border">
-          <h4 className="font-semibold mb-3">Compatible Trackers</h4>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between p-2 border rounded">
+        <div className="bg-card rounded-lg p-4 border border-border">
+          <h4 className="font-semibold mb-4 text-foreground">Compatible Trackers</h4>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-primary-foreground text-xs font-bold">
                   ST
                 </div>
                 <div>
-                  <div className="font-medium">SoccerTrack Pro</div>
-                  <div className="text-xs text-gray-500">Model: ST-2024</div>
+                  <div className="font-medium text-foreground">SoccerTrack Pro</div>
+                  <div className="text-xs text-muted-foreground">Model: ST-2024</div>
                 </div>
               </div>
-              <Badge variant="secondary">Recommended</Badge>
+              <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">Recommended</Badge>
             </div>
-            <div className="flex items-center justify-between p-2 border rounded">
+            <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-8 h-8 bg-secondary rounded flex items-center justify-center text-secondary-foreground text-xs font-bold">
                   KS
                 </div>
                 <div>
-                  <div className="font-medium">KickSense Elite</div>
-                  <div className="text-xs text-gray-500">Model: KS-Elite-2024</div>
+                  <div className="font-medium text-foreground">KickSense Elite</div>
+                  <div className="text-xs text-muted-foreground">Model: KS-Elite-2024</div>
                 </div>
               </div>
-              <Badge variant="outline">Compatible</Badge>
+              <Badge variant="outline" className="border-border">Compatible</Badge>
             </div>
           </div>
         </div>
 
-        <div className="text-center">
-          <Button onClick={handleConnect} size="lg" className="bg-blue-600 hover:bg-blue-700">
+        <div className="text-center space-y-3">
+          <Button 
+            onClick={handleConnect} 
+            size="lg" 
+            className="w-full sm:w-auto bg-primary hover:bg-primary/90 touch-target px-8"
+          >
             <Bluetooth className="w-4 h-4 mr-2" />
             Connect Tracker
           </Button>
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-muted-foreground">
             Make sure your tracker is within 10 meters and powered on
           </p>
         </div>

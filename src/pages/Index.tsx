@@ -47,18 +47,23 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">SoccerTrack Pro</h1>
-            <p className="text-gray-600">Professional soccer performance tracking</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="mobile-container mx-auto py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-7xl">
+        {/* Header - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">SoccerTrack Pro</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Professional soccer performance tracking</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge variant={isConnected ? "default" : "secondary"} className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`} />
-              {isConnected ? 'Tracker Connected' : 'Not Connected'}
+          <div className="flex justify-center sm:justify-end">
+            <Badge 
+              variant={isConnected ? "default" : "secondary"} 
+              className="flex items-center gap-2 touch-target px-4 py-2"
+            >
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
+              <span className="text-xs sm:text-sm">
+                {isConnected ? 'Tracker Connected' : 'Not Connected'}
+              </span>
             </Badge>
           </div>
         </div>
@@ -66,41 +71,54 @@ const Index = () => {
         {/* Connection Status */}
         {!isConnected && <ConnectTracker onConnect={() => setIsConnected(true)} />}
 
-        {/* Live Session Controls */}
+        {/* Live Session Controls - Mobile Optimized */}
         {isConnected && (
-          <Card className="border-2 border-blue-200 bg-blue-50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
+          <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Activity className="w-5 h-5 text-primary" />
                 Training Session
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-4">
+              <div className="space-y-4">
                 {!currentSession ? (
-                  <Button onClick={startSession} className="bg-green-600 hover:bg-green-700">
+                  <Button 
+                    onClick={startSession} 
+                    className="w-full sm:w-auto bg-primary hover:bg-primary/90 touch-target"
+                    size="lg"
+                  >
                     Start Session
                   </Button>
                 ) : (
-                  <div className="flex items-center gap-4">
-                    <Button onClick={stopSession} variant="destructive">
+                  <>
+                    <Button 
+                      onClick={stopSession} 
+                      variant="destructive" 
+                      className="w-full sm:w-auto touch-target"
+                      size="lg"
+                    >
                       End Session
                     </Button>
-                    <div className="flex items-center gap-6 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-yellow-500" />
-                        <span className="font-semibold">{liveData.speed.toFixed(1)} km/h</span>
+                    
+                    {/* Live metrics - Mobile grid */}
+                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-4 sm:gap-6 text-sm">
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-yellow-500/10">
+                        <Zap className="w-4 h-4 text-yellow-400" />
+                        <span className="font-semibold text-foreground">{liveData.speed.toFixed(1)} km/h</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Target className="w-4 h-4 text-green-500" />
-                        <span className="font-semibold">{liveData.kicks} kicks</span>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/10">
+                        <Target className="w-4 h-4 text-primary" />
+                        <span className="font-semibold text-foreground">{liveData.kicks} kicks</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Timer className="w-4 h-4 text-blue-500" />
-                        <span className="font-semibold">{Math.floor(liveData.duration / 60)}:{(liveData.duration % 60).toString().padStart(2, '0')}</span>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-500/10 col-span-2 sm:col-span-1">
+                        <Timer className="w-4 h-4 text-blue-400" />
+                        <span className="font-semibold text-foreground">
+                          {Math.floor(liveData.duration / 60)}:{(liveData.duration % 60).toString().padStart(2, '0')}
+                        </span>
                       </div>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
             </CardContent>
