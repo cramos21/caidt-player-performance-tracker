@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Camera, Target, Trophy, Settings } from "lucide-react";
+import { ArrowLeft, Camera, Target, Trophy, Settings, Upload } from "lucide-react";
 
 interface PlayerProfileProps {
   playerData: {
@@ -35,6 +35,14 @@ const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps
 
   const levels = ["Beginner", "Amateur", "Semi-Pro", "Pro", "Elite"];
 
+  // Sample avatar options (in a real app, these would be memoji or user uploaded images)
+  const avatarOptions = [
+    "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=100&h=100&fit=crop&crop=face",
+    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=100&h=100&fit=crop&crop=face",
+    "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=100&h=100&fit=crop&crop=face",
+    "https://images.unsplash.com/photo-1501286353178-1ec881214838?w=100&h=100&fit=crop&crop=face"
+  ];
+
   const handleSave = () => {
     setPlayerData(formData);
     setIsEditing(false);
@@ -45,90 +53,162 @@ const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps
     setIsEditing(false);
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setFormData({ ...formData, avatar: result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="mobile-container mx-auto py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl">
+      <div className="safe-area-inset px-4 py-6 space-y-6 max-w-sm mx-auto">
         
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-2xl font-bold text-foreground">Player Profile</h1>
+          <h1 className="text-xl font-bold text-foreground">Player Profile</h1>
         </div>
 
         {/* Profile Card */}
         <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Settings className="w-4 h-4" />
                 Profile Settings
               </CardTitle>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+                <Button size="sm" onClick={() => setIsEditing(true)}>Edit</Button>
               ) : (
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleCancel}>Cancel</Button>
-                  <Button onClick={handleSave}>Save Changes</Button>
+                  <Button variant="outline" size="sm" onClick={handleCancel}>Cancel</Button>
+                  <Button size="sm" onClick={handleSave}>Save</Button>
                 </div>
               )}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
             
-            {/* Avatar Section */}
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="w-20 h-20 border-2 border-primary/20">
-                  <AvatarImage src={formData.avatar} />
-                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
-                    {formData.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                {isEditing && (
-                  <Button size="sm" variant="outline" className="absolute -bottom-2 -right-2 p-1">
-                    <Camera className="w-3 h-3" />
-                  </Button>
-                )}
+            {/* Avatar Section with Customization */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-center">
+                <div className="relative">
+                  <Avatar className="w-24 h-24 border-2 border-primary/20">
+                    <AvatarImage src={formData.avatar} />
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
+                      {formData.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isEditing && (
+                    <div className="absolute -bottom-2 -right-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="avatar-upload"
+                      />
+                      <Button size="sm" variant="outline" className="w-8 h-8 p-0 rounded-full" asChild>
+                        <label htmlFor="avatar-upload" className="cursor-pointer flex items-center justify-center">
+                          <Upload className="w-3 h-3" />
+                        </label>
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
+
+              {/* Avatar Options */}
+              {isEditing && (
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-2 block">Choose Avatar</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {avatarOptions.map((avatar, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        className={`w-12 h-12 p-0 rounded-full ${
+                          formData.avatar === avatar ? 'ring-2 ring-primary' : ''
+                        }`}
+                        onClick={() => setFormData({ ...formData, avatar })}
+                      >
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={avatar} />
+                          <AvatarFallback>A{index + 1}</AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="text-center">
                 <h3 className="text-lg font-semibold text-foreground">{formData.name}</h3>
-                <p className="text-muted-foreground">{formData.position} • {formData.team}</p>
-                <Badge variant="secondary" className="mt-1">{formData.level}</Badge>
+                <p className="text-muted-foreground text-sm">{formData.position} • {formData.team}</p>
+                <Badge variant="secondary" className="mt-1 text-xs">{formData.level}</Badge>
               </div>
             </div>
 
             {/* Form Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name" className="text-xs">Full Name</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   disabled={!isEditing}
+                  className="h-9 text-sm"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="team">Team</Label>
-                <Input
-                  id="team"
-                  value={formData.team}
-                  onChange={(e) => setFormData({ ...formData, team: e.target.value })}
-                  disabled={!isEditing}
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="team" className="text-xs">Team</Label>
+                  <Input
+                    id="team"
+                    value={formData.team}
+                    onChange={(e) => setFormData({ ...formData, team: e.target.value })}
+                    disabled={!isEditing}
+                    className="h-9 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="level" className="text-xs">Level</Label>
+                  <Select
+                    value={formData.level}
+                    onValueChange={(value) => setFormData({ ...formData, level: value })}
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {levels.map((level) => (
+                        <SelectItem key={level} value={level}>{level}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="position">Position</Label>
+              <div>
+                <Label htmlFor="position" className="text-xs">Position</Label>
                 <Select
                   value={formData.position}
                   onValueChange={(value) => setFormData({ ...formData, position: value })}
                   disabled={!isEditing}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -138,34 +218,16 @@ const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="level">Level</Label>
-                <Select
-                  value={formData.level}
-                  onValueChange={(value) => setFormData({ ...formData, level: value })}
-                  disabled={!isEditing}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {levels.map((level) => (
-                      <SelectItem key={level} value={level}>{level}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             {/* Goals Section */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <Target className="w-5 h-5" />
+            <div className="space-y-3">
+              <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
+                <Target className="w-4 h-4" />
                 Training Goals
               </h4>
-              <div className="space-y-2">
-                <Label htmlFor="weeklyGoal">Weekly Training Sessions Goal</Label>
+              <div>
+                <Label htmlFor="weeklyGoal" className="text-xs">Weekly Training Sessions Goal</Label>
                 <Input
                   id="weeklyGoal"
                   type="number"
@@ -174,6 +236,7 @@ const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps
                   value={formData.weeklyGoal}
                   onChange={(e) => setFormData({ ...formData, weeklyGoal: parseInt(e.target.value) || 1 })}
                   disabled={!isEditing}
+                  className="h-9 text-sm"
                 />
               </div>
             </div>
@@ -183,29 +246,29 @@ const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps
         {/* Stats Overview */}
         <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Trophy className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Trophy className="w-4 h-4" />
               Your Stats
             </CardTitle>
-            <CardDescription>Your performance overview</CardDescription>
+            <CardDescription className="text-xs">Your performance overview</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 rounded-lg bg-primary/10">
-                <div className="text-2xl font-bold text-primary">{playerData.currentStreak}</div>
-                <div className="text-sm text-muted-foreground">Day Streak</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-3 rounded-lg bg-primary/10">
+                <div className="text-xl font-bold text-primary">{playerData.currentStreak}</div>
+                <div className="text-xs text-muted-foreground">Day Streak</div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-blue-500/10">
-                <div className="text-2xl font-bold text-blue-400">23</div>
-                <div className="text-sm text-muted-foreground">Total Sessions</div>
+              <div className="text-center p-3 rounded-lg bg-blue-500/10">
+                <div className="text-xl font-bold text-blue-400">23</div>
+                <div className="text-xs text-muted-foreground">Sessions</div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-green-500/10">
-                <div className="text-2xl font-bold text-green-400">127.3</div>
-                <div className="text-sm text-muted-foreground">Total km</div>
+              <div className="text-center p-3 rounded-lg bg-green-500/10">
+                <div className="text-xl font-bold text-green-400">127.3</div>
+                <div className="text-xs text-muted-foreground">Total km</div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-purple-500/10">
-                <div className="text-2xl font-bold text-purple-400">1247</div>
-                <div className="text-sm text-muted-foreground">Total Kicks</div>
+              <div className="text-center p-3 rounded-lg bg-purple-500/10">
+                <div className="text-xl font-bold text-purple-400">1247</div>
+                <div className="text-xs text-muted-foreground">Total Kicks</div>
               </div>
             </div>
           </CardContent>
