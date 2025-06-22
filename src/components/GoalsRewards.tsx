@@ -92,7 +92,7 @@ const GoalsRewards = ({ goals, setGoals, onBack }: GoalsRewardsProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="safe-area-inset px-4 py-6 space-y-6 max-w-sm mx-auto">
+      <div className="safe-area-inset px-4 py-6 space-y-6 max-w-sm mx-auto pb-24">
         
         {/* Header */}
         <div className="flex items-center gap-4">
