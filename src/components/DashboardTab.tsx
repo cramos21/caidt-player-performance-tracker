@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +50,7 @@ const DashboardTab = ({
   };
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-24">
       {/* Mobile Player Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Settings } from "lucide-react";
@@ -7,6 +6,7 @@ import GoalsRewards from "@/components/GoalsRewards";
 import BottomNavigation from "@/components/BottomNavigation";
 import DashboardTab from "@/components/DashboardTab";
 import PerformanceTab from "@/components/PerformanceTab";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -116,28 +116,30 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="safe-area-inset px-4 py-6 max-w-sm mx-auto">
-        {/* Header for non-dashboard tabs */}
-        {(activeTab === 'goals' || activeTab === 'account') && (
-          <div className="flex items-center gap-4 mb-6">
-            <Button variant="ghost" size="sm" onClick={() => setActiveTab('dashboard')}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <h1 className="text-xl font-bold text-foreground">
-              {activeTab === 'goals' ? 'Goals & Rewards' : 'Account Settings'}
-            </h1>
-            {activeTab === 'account' && (
-              <div className="ml-auto">
-                <Button variant="ghost" size="sm">
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-        
-        {renderTabContent()}
-      </div>
+      <ScrollArea className="h-screen">
+        <div className="safe-area-inset px-4 py-6 max-w-sm mx-auto pb-24">
+          {/* Header for non-dashboard tabs */}
+          {(activeTab === 'goals' || activeTab === 'account') && (
+            <div className="flex items-center gap-4 mb-6">
+              <Button variant="ghost" size="sm" onClick={() => setActiveTab('dashboard')}>
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <h1 className="text-xl font-bold text-foreground">
+                {activeTab === 'goals' ? 'Goals & Rewards' : 'Account Settings'}
+              </h1>
+              {activeTab === 'account' && (
+                <div className="ml-auto">
+                  <Button variant="ghost" size="sm">
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {renderTabContent()}
+        </div>
+      </ScrollArea>
       
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
