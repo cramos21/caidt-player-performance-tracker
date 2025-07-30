@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ConnectTracker from "@/components/ConnectTracker";
+import CountdownScreen from "@/components/CountdownScreen";
+import LiveSessionTracking from "@/components/LiveSessionTracking";
 import { Activity, Zap, Target, Timer, Trophy, Camera } from "lucide-react";
 
 interface DashboardTabProps {
@@ -31,6 +33,10 @@ const DashboardTab = ({
   goals,
   onShowGoals
 }: DashboardTabProps) => {
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [showLiveSession, setShowLiveSession] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
   // Today's summary stats
   const todayStats = {
     sessionsCompleted: currentSession ? 1 : 0,
@@ -40,14 +46,59 @@ const DashboardTab = ({
     caloriesBurned: 245
   };
 
-  const startSession = () => {
+  const startCountdown = () => {
+    setShowCountdown(true);
+  };
+
+  const handleCountdownComplete = () => {
+    setShowCountdown(false);
+    setShowLiveSession(true);
     setCurrentSession(Date.now());
     setLiveData({ speed: 0, distance: 0, kicks: 0, duration: 0 });
   };
 
-  const stopSession = () => {
-    setCurrentSession(null);
+  const handleCountdownCancel = () => {
+    setShowCountdown(false);
   };
+
+  const handlePauseSession = () => {
+    setIsPaused(!isPaused);
+  };
+
+  const handleEndSession = () => {
+    setShowLiveSession(false);
+    setCurrentSession(null);
+    setIsPaused(false);
+  };
+
+  const handleBackFromLive = () => {
+    setShowLiveSession(false);
+    setCurrentSession(null);
+    setIsPaused(false);
+  };
+
+  // Show countdown screen
+  if (showCountdown) {
+    return (
+      <CountdownScreen
+        onCountdownComplete={handleCountdownComplete}
+        onCancel={handleCountdownCancel}
+      />
+    );
+  }
+
+  // Show live session tracking
+  if (showLiveSession && currentSession) {
+    return (
+      <LiveSessionTracking
+        liveData={liveData}
+        onPause={handlePauseSession}
+        onEndSession={handleEndSession}
+        onBack={handleBackFromLive}
+        isPaused={isPaused}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6 pb-24">
@@ -172,7 +223,7 @@ const DashboardTab = ({
             <div className="space-y-4">
               {!currentSession ? (
                 <Button 
-                  onClick={startSession} 
+                  onClick={startCountdown} 
                   className="w-full bg-primary hover:bg-primary/90 touch-target"
                   size="lg"
                 >
@@ -181,12 +232,11 @@ const DashboardTab = ({
               ) : (
                 <>
                   <Button 
-                    onClick={stopSession} 
-                    variant="destructive" 
-                    className="w-full touch-target"
+                    onClick={() => setShowLiveSession(true)} 
+                    className="w-full bg-primary hover:bg-primary/90 touch-target"
                     size="lg"
                   >
-                    End Session
+                    View Live Session
                   </Button>
                   
                   <div className="grid grid-cols-2 gap-3">
