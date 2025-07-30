@@ -1,0 +1,58 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { CirclePlayIcon } from "lucide-react";
+
+interface CountdownScreenProps {
+  onCountdownComplete: () => void;
+  onCancel: () => void;
+}
+
+const CountdownScreen = ({ onCountdownComplete, onCancel }: CountdownScreenProps) => {
+  const [count, setCount] = useState(3);
+
+  useEffect(() => {
+    if (count > 0) {
+      const timer = setTimeout(() => {
+        setCount(count - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      onCountdownComplete();
+    }
+  }, [count, onCountdownComplete]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-slate-900 to-slate-900 flex flex-col items-center justify-center px-4">
+      <div className="text-center space-y-8">
+        <div className="space-y-4">
+          <CirclePlayIcon className="w-16 h-16 text-primary mx-auto" />
+          <h1 className="text-2xl font-bold text-foreground">Get Ready!</h1>
+        </div>
+
+        <div className="space-y-6">
+          <div className="text-8xl font-bold text-primary animate-scale-in">
+            {count > 0 ? count : "GO!"}
+          </div>
+          
+          {count > 0 && (
+            <p className="text-muted-foreground text-lg">
+              Training starts in {count} second{count !== 1 ? 's' : ''}...
+            </p>
+          )}
+        </div>
+
+        {count > 0 && (
+          <Button 
+            onClick={onCancel}
+            variant="ghost" 
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Cancel
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CountdownScreen;
