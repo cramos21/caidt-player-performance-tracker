@@ -47,7 +47,9 @@ const DashboardTab = ({
   };
 
   const startCountdown = () => {
+    console.log("Starting countdown...");
     setShowCountdown(true);
+    console.log("showCountdown set to true");
   };
 
   const handleCountdownComplete = () => {
@@ -78,7 +80,9 @@ const DashboardTab = ({
   };
 
   // Show countdown screen
+  console.log("showCountdown:", showCountdown);
   if (showCountdown) {
+    console.log("Rendering CountdownScreen");
     return (
       <CountdownScreen
         onCountdownComplete={handleCountdownComplete}
