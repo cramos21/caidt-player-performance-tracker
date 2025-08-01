@@ -36,14 +36,15 @@ const DashboardTab = ({
   const [showCountdown, setShowCountdown] = useState(false);
   const [showLiveSession, setShowLiveSession] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [lastSessionData, setLastSessionData] = useState<any>(null);
 
   // Today's summary stats
   const todayStats = {
-    sessionsCompleted: currentSession ? 1 : 0,
-    totalDistance: liveData.distance || 2.3,
-    avgSpeed: 18.5,
-    totalKicks: liveData.kicks || 34,
-    caloriesBurned: 245
+    sessionsCompleted: lastSessionData ? 1 : (currentSession ? 1 : 0),
+    totalDistance: lastSessionData?.distance || liveData.distance || 2.3,
+    avgSpeed: lastSessionData?.maxSpeed || 18.5,
+    totalKicks: lastSessionData?.kicks || liveData.kicks || 34,
+    caloriesBurned: lastSessionData ? Math.floor(lastSessionData.duration * 4.5) : 245
   };
 
   const startCountdown = () => {
@@ -68,6 +69,14 @@ const DashboardTab = ({
   };
 
   const handleEndSession = () => {
+    // Save the session data before ending
+    const sessionSummary = {
+      ...liveData,
+      maxSpeed: Math.max(25, liveData.speed), // Keep track of max speed achieved
+      sessionDate: new Date().toISOString()
+    };
+    setLastSessionData(sessionSummary);
+    
     setShowLiveSession(false);
     setCurrentSession(null);
     setIsPaused(false);
