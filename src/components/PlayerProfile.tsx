@@ -74,7 +74,6 @@ const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-xl font-bold text-foreground">Player Profile</h1>
         </div>
 
         {/* Profile Card */}
@@ -243,36 +242,6 @@ const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps
           </CardContent>
         </Card>
 
-        {/* Stats Overview */}
-        <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Trophy className="w-4 h-4" />
-              Your Stats
-            </CardTitle>
-            <CardDescription className="text-xs">Your performance overview</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="text-center p-3 rounded-lg bg-primary/10">
-                <div className="text-xl font-bold text-primary">{playerData.currentStreak}</div>
-                <div className="text-xs text-muted-foreground">Day Streak</div>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-blue-500/10">
-                <div className="text-xl font-bold text-blue-400">23</div>
-                <div className="text-xs text-muted-foreground">Sessions</div>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-green-500/10">
-                <div className="text-xl font-bold text-green-400">127.3</div>
-                <div className="text-xs text-muted-foreground">Total km</div>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-purple-500/10">
-                <div className="text-xl font-bold text-purple-400">1247</div>
-                <div className="text-xs text-muted-foreground">Total Kicks</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

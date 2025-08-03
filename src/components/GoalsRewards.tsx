@@ -94,14 +94,13 @@ const GoalsRewards = ({ goals, setGoals, onBack }: GoalsRewardsProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <ScrollArea className="h-screen">
-        <div className="safe-area-inset px-4 py-6 space-y-6 max-w-sm mx-auto pb-24">
+        <div className="safe-area-inset px-4 py-6 space-y-6 max-w-sm mx-auto pb-32">
           
           {/* Header */}
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={onBack}>
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-xl font-bold text-foreground">Goals & Rewards</h1>
           </div>
 
           {/* Current Goals */}

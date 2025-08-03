@@ -66,7 +66,7 @@ const RecentActivity = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {recentSessions.map((session) => (
-            <div key={session.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+            <div key={session.id} className="border-2 border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -79,7 +79,7 @@ const RecentActivity = () => {
                     {session.location}
                   </div>
                 </div>
-                <Button variant="outline" size="sm">View Details</Button>
+                
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
@@ -115,8 +115,7 @@ const RecentActivity = () => {
         </CardContent>
       </Card>
 
-      {/* Goals & Achievements and Quick Stats side by side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Goals & Achievements */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -189,7 +188,6 @@ const RecentActivity = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 };
