@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ConnectTracker from "@/components/ConnectTracker";
 import CountdownScreen from "@/components/CountdownScreen";
 import LiveSessionTracking from "@/components/LiveSessionTracking";
+import PairingConfirmation from "@/components/PairingConfirmation";
 import { Activity, Zap, Target, Timer, Trophy, Camera } from "lucide-react";
 
 interface DashboardTabProps {
@@ -37,6 +38,7 @@ const DashboardTab = ({
   const [showLiveSession, setShowLiveSession] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [lastSessionData, setLastSessionData] = useState<any>(null);
+  const [showPairingConfirmation, setShowPairingConfirmation] = useState(false);
 
   // Today's summary stats
   const todayStats = {
@@ -87,6 +89,25 @@ const DashboardTab = ({
     setCurrentSession(null);
     setIsPaused(false);
   };
+
+  const handleTrackerConnect = () => {
+    setShowPairingConfirmation(true);
+  };
+
+  const handleGoToDashboard = () => {
+    setShowPairingConfirmation(false);
+    setIsConnected(true);
+  };
+
+  // Show pairing confirmation screen
+  if (showPairingConfirmation) {
+    return (
+      <PairingConfirmation
+        trackerName="SoccerTrack Pro"
+        onGoToDashboard={handleGoToDashboard}
+      />
+    );
+  }
 
   // Show countdown screen
   console.log("showCountdown:", showCountdown);
@@ -221,7 +242,7 @@ const DashboardTab = ({
       </Card>
 
       {/* Connection Status */}
-      {!isConnected && <ConnectTracker onConnect={() => setIsConnected(true)} />}
+      {!isConnected && <ConnectTracker onConnect={handleTrackerConnect} />}
 
       {/* Live Session Controls */}
       {isConnected && (
