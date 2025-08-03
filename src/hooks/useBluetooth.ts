@@ -50,25 +50,31 @@ export const useBluetooth = () => {
       const initialized = await initializeBluetooth();
       if (!initialized) return [];
 
-      // Request permissions
+      // Scan for all BLE devices (don't filter by service during scan)
       await BleClient.requestLEScan(
         {
-          services: [SOCCER_TRACKER_SERVICE_UUID],
           allowDuplicates: false,
           scanMode: 1 // SCAN_MODE_LOW_LATENCY
         },
         (result) => {
-          console.log('Device found:', result);
+          console.log('Device found:', result.device.name || 'Unknown', result.device.deviceId);
         }
       );
 
       // Scan for 10 seconds
       await new Promise(resolve => setTimeout(resolve, 10000));
       
-      const devices = await BleClient.getDevices([SOCCER_TRACKER_SERVICE_UUID]);
+      // Get all discovered devices
+      const allDevices = await BleClient.getDevices([]);
       await BleClient.stopLEScan();
       
-      return devices;
+      // Filter devices by name (your Arduino advertises as "Player Performance Tracker")
+      const filteredDevices = allDevices.filter(device => 
+        device.name && device.name.includes('Player Performance Tracker')
+      );
+      
+      console.log('Found tracker devices:', filteredDevices);
+      return filteredDevices;
     } catch (error) {
       console.error('Scan failed:', error);
       toast.error('Failed to scan for devices');
