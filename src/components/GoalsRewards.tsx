@@ -91,15 +91,13 @@ const GoalsRewards = ({ goals, setGoals }: GoalsRewardsProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <ScrollArea className="h-screen">
-        <div className="safe-area-inset px-4 py-6 space-y-6 max-w-sm mx-auto pb-40">
-          {/* Title */}
-          <div className="pt-6">
-            <h1 className="text-2xl font-bold text-foreground">Goals</h1>
-          </div>
+    <div className="space-y-6 pb-24">
+      {/* Title */}
+      <div className="pt-6">
+        <h1 className="text-2xl font-bold text-foreground">Goals</h1>
+      </div>
 
-          {/* Current Goals */}
+      {/* Current Goals */}
           <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -279,9 +277,7 @@ const GoalsRewards = ({ goals, setGoals }: GoalsRewardsProps) => {
             </CardContent>
           </Card>
         </div>
-      </ScrollArea>
-    </div>
-  );
-};
+    );
+  };
 
-export default GoalsRewards;
+    export default GoalsRewards;
