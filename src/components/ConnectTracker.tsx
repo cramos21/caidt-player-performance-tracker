@@ -52,35 +52,6 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
           </div>
         </div>
 
-        <div className="bg-card rounded-lg p-4 border border-border">
-          <h4 className="font-semibold mb-4 text-foreground">Compatible Trackers</h4>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-primary-foreground text-xs font-bold">
-                  ST
-                </div>
-                <div>
-                  <div className="font-medium text-foreground">SoccerTrack Pro</div>
-                  <div className="text-xs text-muted-foreground">Model: ST-2024</div>
-                </div>
-              </div>
-              <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">Recommended</Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-secondary rounded flex items-center justify-center text-secondary-foreground text-xs font-bold">
-                  KS
-                </div>
-                <div>
-                  <div className="font-medium text-foreground">KickSense Elite</div>
-                  <div className="text-xs text-muted-foreground">Model: KS-Elite-2024</div>
-                </div>
-              </div>
-              <Badge variant="outline" className="border-border">Compatible</Badge>
-            </div>
-          </div>
-        </div>
 
         <div className="text-center space-y-3">
           <Button 
