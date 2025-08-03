@@ -84,7 +84,7 @@ const Index = () => {
   }
 
   if (showGoalsRewards) {
-    return <GoalsRewards goals={goals} setGoals={setGoals} onBack={() => setShowGoalsRewards(false)} />;
+    return <GoalsRewards goals={goals} setGoals={setGoals} />;
   }
 
   const handleStartTraining = () => {
@@ -115,7 +115,7 @@ const Index = () => {
       case 'training':
         return <TrainingTab onStartTraining={handleStartTraining} />;
       case 'goals':
-        return <GoalsRewards goals={goals} setGoals={setGoals} onBack={() => setActiveTab('dashboard')} />;
+        return <GoalsRewards goals={goals} setGoals={setGoals} />;
       case 'account':
         return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} onBack={() => setActiveTab('dashboard')} />;
       default:
@@ -127,26 +127,6 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <ScrollArea className="h-screen">
         <div className="safe-area-inset px-4 py-6 max-w-sm mx-auto pb-24">
-          {/* Header for non-dashboard tabs */}
-          {(activeTab === 'goals' || activeTab === 'account' || activeTab === 'training') && (
-            <div className="flex items-center gap-4 mb-6">
-              <Button variant="ghost" size="sm" onClick={() => setActiveTab('dashboard')}>
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <h1 className="text-xl font-bold text-foreground">
-                {activeTab === 'goals' ? 'Goals & Rewards' : 
-                 activeTab === 'account' ? 'Account Settings' : 
-                 'Training'}
-              </h1>
-              {activeTab === 'account' && (
-                <div className="ml-auto">
-                  <Button variant="ghost" size="sm">
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
           
           {renderTabContent()}
         </div>

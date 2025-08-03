@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Plus, Target, Trophy, Award, Edit, Trash2 } from "lucide-react";
+import { Plus, Target, Trophy, Award, Edit, Trash2 } from "lucide-react";
 
 interface Goal {
   id: number;
@@ -21,10 +21,9 @@ interface Goal {
 interface GoalsRewardsProps {
   goals: Goal[];
   setGoals: (goals: Goal[]) => void;
-  onBack: () => void;
 }
 
-const GoalsRewards = ({ goals, setGoals, onBack }: GoalsRewardsProps) => {
+const GoalsRewards = ({ goals, setGoals }: GoalsRewardsProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
