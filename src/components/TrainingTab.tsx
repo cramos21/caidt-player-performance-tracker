@@ -44,6 +44,10 @@ const TrainingTab = ({ onStartTraining }: TrainingTabProps) => {
 
   return (
     <div className="space-y-6 pb-24">
+      {/* Title */}
+      <div className="pt-6">
+        <h1 className="text-2xl font-bold text-foreground">Training</h1>
+      </div>
 
       {/* Quick Start */}
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
