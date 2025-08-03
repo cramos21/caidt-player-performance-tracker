@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,70 +54,69 @@ const RecentActivity = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Recent Training Sessions
-            </CardTitle>
-            <CardDescription>Your last few training sessions</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recentSessions.map((session) => (
-              <div key={session.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Clock className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-600">{session.date}</span>
-                      {getPerformanceBadge(session.performance)}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <MapPin className="w-4 h-4" />
-                      {session.location}
-                    </div>
+    <div className="space-y-6">
+      {/* Recent Training Sessions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            Recent Training Sessions
+          </CardTitle>
+          <CardDescription>Your last few training sessions</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {recentSessions.map((session) => (
+            <div key={session.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">{session.date}</span>
+                    {getPerformanceBadge(session.performance)}
                   </div>
-                  <Button variant="outline" size="sm">View Details</Button>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-blue-600">{session.duration}</div>
-                    <div className="text-xs text-gray-500">Duration</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-green-600">{session.maxSpeed}</div>
-                    <div className="text-xs text-gray-500">Max Speed</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-purple-600">{session.distance}</div>
-                    <div className="text-xs text-gray-500">Distance</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-orange-600">{session.kicks}</div>
-                    <div className="text-xs text-gray-500">Kicks</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <MapPin className="w-4 h-4" />
+                    {session.location}
                   </div>
                 </div>
-
-                {session.highlights.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {session.highlights.map((highlight, index) => (
-                      <span key={index} className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-                        ⭐ {highlight}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <Button variant="outline" size="sm">View Details</Button>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-blue-600">{session.duration}</div>
+                  <div className="text-xs text-gray-500">Duration</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-green-600">{session.maxSpeed}</div>
+                  <div className="text-xs text-gray-500">Max Speed</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-purple-600">{session.distance}</div>
+                  <div className="text-xs text-gray-500">Distance</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-orange-600">{session.kicks}</div>
+                  <div className="text-xs text-gray-500">Kicks</div>
+                </div>
+              </div>
 
-      <div className="space-y-6">
-        {/* Goals & Achievements */}
+              {session.highlights.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {session.highlights.map((highlight, index) => (
+                    <span key={index} className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                      ⭐ {highlight}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Goals & Achievements and Quick Stats side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -163,7 +161,6 @@ const RecentActivity = () => {
           </CardContent>
         </Card>
 
-        {/* Quick Stats */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

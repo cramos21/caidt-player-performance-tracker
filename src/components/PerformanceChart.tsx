@@ -37,11 +37,13 @@ const PerformanceChart = () => {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="weekly" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="weekly">Weekly Overview</TabsTrigger>
-            <TabsTrigger value="session">Session Analysis</TabsTrigger>
-            <TabsTrigger value="kicks">Kick Performance</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground min-w-fit">
+              <TabsTrigger value="weekly" className="whitespace-nowrap">Weekly Overview</TabsTrigger>
+              <TabsTrigger value="session" className="whitespace-nowrap">Session Analysis</TabsTrigger>
+              <TabsTrigger value="kicks" className="whitespace-nowrap">Kick Performance</TabsTrigger>
+            </TabsList>
+          </div>
           
           <TabsContent value="weekly" className="space-y-4">
             <div className="h-80">
