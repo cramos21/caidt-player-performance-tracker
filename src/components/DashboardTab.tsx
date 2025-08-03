@@ -7,6 +7,8 @@ import ConnectTracker from "@/components/ConnectTracker";
 import CountdownScreen from "@/components/CountdownScreen";
 import LiveSessionTracking from "@/components/LiveSessionTracking";
 import PairingConfirmation from "@/components/PairingConfirmation";
+import LiveArduinoData from "@/components/LiveArduinoData";
+import { useBluetooth } from "@/hooks/useBluetooth";
 import { Activity, Zap, Target, Timer, Trophy, Camera } from "lucide-react";
 
 interface DashboardTabProps {
@@ -39,6 +41,24 @@ const DashboardTab = ({
   const [isPaused, setIsPaused] = useState(false);
   const [lastSessionData, setLastSessionData] = useState<any>(null);
   const [showPairingConfirmation, setShowPairingConfirmation] = useState(false);
+  const { isConnected: bluetoothConnected, trackerData } = useBluetooth();
+
+  // Update parent state when bluetooth connection changes
+  useEffect(() => {
+    setIsConnected(bluetoothConnected);
+  }, [bluetoothConnected, setIsConnected]);
+
+  // Update live data when tracker data changes
+  useEffect(() => {
+    if (bluetoothConnected && trackerData) {
+      setLiveData({
+        speed: trackerData.speed,
+        distance: trackerData.distance,
+        kicks: trackerData.kicks,
+        duration: trackerData.sessionTime * 60 // Convert minutes to seconds
+      });
+    }
+  }, [trackerData, bluetoothConnected, setLiveData]);
 
   // Today's summary stats
   const todayStats = {
@@ -244,67 +264,12 @@ const DashboardTab = ({
       {/* Connection Status */}
       {!isConnected && <ConnectTracker onConnect={handleTrackerConnect} />}
 
-      {/* Live Session Controls */}
-      {isConnected && (
-        <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Activity className="w-4 h-4 text-primary" />
-              {currentSession ? 'Live Training' : 'Ready to Train'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {!currentSession ? (
-                <Button 
-                  onClick={startCountdown} 
-                  className="w-full bg-primary hover:bg-primary/90 touch-target"
-                  size="lg"
-                >
-                  Start Training Session
-                </Button>
-              ) : (
-                <>
-                  <Button 
-                    onClick={() => setShowLiveSession(true)} 
-                    className="w-full bg-primary hover:bg-primary/90 touch-target"
-                    size="lg"
-                  >
-                    View Live Session
-                  </Button>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10">
-                      <Zap className="w-4 h-4 text-yellow-400" />
-                      <div>
-                        <div className="font-semibold text-foreground text-sm">{liveData.speed.toFixed(1)}</div>
-                        <div className="text-xs text-muted-foreground">km/h</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10">
-                      <Target className="w-4 h-4 text-primary" />
-                      <div>
-                        <div className="font-semibold text-foreground text-sm">{liveData.kicks}</div>
-                        <div className="text-xs text-muted-foreground">kicks</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-blue-500/10">
-                    <Timer className="w-4 h-4 text-blue-400" />
-                    <div className="text-center">
-                      <div className="font-semibold text-foreground">
-                        {Math.floor(liveData.duration / 60)}:{(liveData.duration % 60).toString().padStart(2, '0')}
-                      </div>
-                      <div className="text-xs text-muted-foreground">session time</div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Arduino Nano Tracker Integration */}
+      <LiveArduinoData 
+        onSessionStart={() => setCurrentSession(Date.now())}
+        onSessionEnd={handleEndSession}
+        isSessionActive={!!currentSession}
+      />
     </div>
   );
 };
