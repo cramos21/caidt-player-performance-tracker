@@ -5,7 +5,10 @@ import { toast } from 'sonner';
 
 // Arduino Nano service and characteristic UUIDs
 const SOCCER_TRACKER_SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
-const DATA_CHARACTERISTIC_UUID = '87654321-4321-4321-4321-cba987654321';
+const KICKS_CHARACTERISTIC_UUID = '87654321-4321-4321-4321-cba987654321';
+const DISTANCE_CHARACTERISTIC_UUID = '11111111-2222-3333-4444-555555555555';
+const MAX_SPEED_CHARACTERISTIC_UUID = '66666666-7777-8888-9999-aaaaaaaaaaaa';
+const TIME_CHARACTERISTIC_UUID = 'bbbbbbbb-cccc-dddd-eeee-ffffffffffff';
 
 export interface SoccerTrackerData {
   speed: number; // km/h
@@ -110,25 +113,47 @@ export const useBluetooth = () => {
 
   const startNotifications = useCallback(async (deviceId: string) => {
     try {
+      // Start notifications for kicks
       await BleClient.startNotifications(
         deviceId,
         SOCCER_TRACKER_SERVICE_UUID,
-        DATA_CHARACTERISTIC_UUID,
+        KICKS_CHARACTERISTIC_UUID,
         (value) => {
-          // Parse the data from Arduino Nano
-          // Expected format: speed(float), distance(float), kicks(int), sessionTime(int)
-          const data = dataViewToNumbers(value);
-          
-          if (data.length >= 4) {
-            const newData: SoccerTrackerData = {
-              speed: Math.round(data[0] * 100) / 100, // Round to 2 decimal places
-              distance: Math.round(data[1] * 100) / 100,
-              kicks: Math.round(data[2]),
-              sessionTime: Math.round(data[3])
-            };
-            
-            setTrackerData(newData);
-          }
+          const kicks = dataViewToNumbers(value)[0];
+          setTrackerData(prev => ({ ...prev, kicks: Math.round(kicks) }));
+        }
+      );
+
+      // Start notifications for distance
+      await BleClient.startNotifications(
+        deviceId,
+        SOCCER_TRACKER_SERVICE_UUID,
+        DISTANCE_CHARACTERISTIC_UUID,
+        (value) => {
+          const distance = dataViewToNumbers(value)[0];
+          setTrackerData(prev => ({ ...prev, distance: Math.round(distance * 100) / 100 }));
+        }
+      );
+
+      // Start notifications for max speed
+      await BleClient.startNotifications(
+        deviceId,
+        SOCCER_TRACKER_SERVICE_UUID,
+        MAX_SPEED_CHARACTERISTIC_UUID,
+        (value) => {
+          const speed = dataViewToNumbers(value)[0];
+          setTrackerData(prev => ({ ...prev, speed: Math.round(speed * 100) / 100 }));
+        }
+      );
+
+      // Start notifications for session time
+      await BleClient.startNotifications(
+        deviceId,
+        SOCCER_TRACKER_SERVICE_UUID,
+        TIME_CHARACTERISTIC_UUID,
+        (value) => {
+          const sessionTime = dataViewToNumbers(value)[0];
+          setTrackerData(prev => ({ ...prev, sessionTime: Math.round(sessionTime) }));
         }
       );
     } catch (error) {
@@ -168,7 +193,7 @@ export const useBluetooth = () => {
       await BleClient.write(
         connectedDevice.deviceId,
         SOCCER_TRACKER_SERVICE_UUID,
-        DATA_CHARACTERISTIC_UUID,
+        KICKS_CHARACTERISTIC_UUID,
         commandData
       );
     } catch (error) {
