@@ -96,12 +96,6 @@ const GoalsRewards = ({ goals, setGoals, onBack }: GoalsRewardsProps) => {
       <ScrollArea className="h-screen">
         <div className="safe-area-inset px-4 py-6 space-y-6 max-w-sm mx-auto pb-32">
           
-          {/* Header */}
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={onBack}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </div>
 
           {/* Current Goals */}
           <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
