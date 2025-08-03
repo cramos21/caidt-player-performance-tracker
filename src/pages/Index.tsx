@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings } from "lucide-react";
 import PlayerProfile from "@/components/PlayerProfile";
 import GoalsRewards from "@/components/GoalsRewards";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -80,7 +78,7 @@ const Index = () => {
   }, [isConnected, currentSession]);
 
   if (showProfile) {
-    return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} onBack={() => setShowProfile(false)} />;
+    return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />;
   }
 
   if (showGoalsRewards) {
@@ -117,7 +115,7 @@ const Index = () => {
       case 'goals':
         return <GoalsRewards goals={goals} setGoals={setGoals} />;
       case 'account':
-        return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} onBack={() => setActiveTab('dashboard')} />;
+        return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />;
       default:
         return null;
     }

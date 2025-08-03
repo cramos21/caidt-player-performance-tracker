@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Camera, Target, Trophy, Settings, Upload } from "lucide-react";
+import { Camera, Target, Trophy, Settings, Upload } from "lucide-react";
 
 interface PlayerProfileProps {
   playerData: {
@@ -20,10 +20,9 @@ interface PlayerProfileProps {
     currentStreak: number;
   };
   setPlayerData: (data: any) => void;
-  onBack: () => void;
 }
 
-const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps) => {
+const PlayerProfile = ({ playerData, setPlayerData }: PlayerProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(playerData);
 
@@ -69,12 +68,6 @@ const PlayerProfile = ({ playerData, setPlayerData, onBack }: PlayerProfileProps
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="safe-area-inset px-4 py-6 space-y-6 max-w-sm mx-auto">
         
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-        </div>
 
         {/* Profile Card */}
         <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
