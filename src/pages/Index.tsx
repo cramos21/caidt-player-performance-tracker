@@ -6,6 +6,7 @@ import GoalsRewards from "@/components/GoalsRewards";
 import BottomNavigation from "@/components/BottomNavigation";
 import DashboardTab from "@/components/DashboardTab";
 import PerformanceTab from "@/components/PerformanceTab";
+import TrainingTab from "@/components/TrainingTab";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Index = () => {
@@ -86,6 +87,12 @@ const Index = () => {
     return <GoalsRewards goals={goals} setGoals={setGoals} onBack={() => setShowGoalsRewards(false)} />;
   }
 
+  const handleStartTraining = () => {
+    // Navigate to dashboard and trigger training start
+    setActiveTab('dashboard');
+    // This would trigger the training flow in DashboardTab
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -105,6 +112,8 @@ const Index = () => {
         );
       case 'performance':
         return <PerformanceTab liveData={liveData} currentSession={currentSession} />;
+      case 'training':
+        return <TrainingTab onStartTraining={handleStartTraining} />;
       case 'goals':
         return <GoalsRewards goals={goals} setGoals={setGoals} onBack={() => setActiveTab('dashboard')} />;
       case 'account':
@@ -119,13 +128,15 @@ const Index = () => {
       <ScrollArea className="h-screen">
         <div className="safe-area-inset px-4 py-6 max-w-sm mx-auto pb-24">
           {/* Header for non-dashboard tabs */}
-          {(activeTab === 'goals' || activeTab === 'account') && (
+          {(activeTab === 'goals' || activeTab === 'account' || activeTab === 'training') && (
             <div className="flex items-center gap-4 mb-6">
               <Button variant="ghost" size="sm" onClick={() => setActiveTab('dashboard')}>
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <h1 className="text-xl font-bold text-foreground">
-                {activeTab === 'goals' ? 'Goals & Rewards' : 'Account Settings'}
+                {activeTab === 'goals' ? 'Goals & Rewards' : 
+                 activeTab === 'account' ? 'Account Settings' : 
+                 'Training'}
               </h1>
               {activeTab === 'account' && (
                 <div className="ml-auto">

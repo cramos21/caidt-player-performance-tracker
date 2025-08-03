@@ -1,5 +1,5 @@
 
-import { Home, TrendingUp, Target, User } from "lucide-react";
+import { Home, TrendingUp, Target, User, Play } from "lucide-react";
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -10,6 +10,7 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'performance', label: 'Performance', icon: TrendingUp },
+    { id: 'training', label: 'Training', icon: Play },
     { id: 'goals', label: 'Goals', icon: Target },
     { id: 'account', label: 'Account', icon: User }
   ];
