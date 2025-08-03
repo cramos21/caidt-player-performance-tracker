@@ -136,13 +136,8 @@ const DashboardTab = ({
 
   return (
     <div className="space-y-6 pb-24">
-      {/* Title */}
-      <div className="pt-6">
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-      </div>
-      
       {/* Mobile Player Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pt-6">
         <div className="flex items-center gap-3">
           <div className="relative">
             <Avatar className="w-16 h-16 border-2 border-primary/20">
