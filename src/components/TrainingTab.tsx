@@ -44,10 +44,6 @@ const TrainingTab = ({ onStartTraining }: TrainingTabProps) => {
 
   return (
     <div className="space-y-6 pb-24">
-      <div className="text-center">
-        <h2 className="text-xl font-bold text-foreground mb-2">Training Sessions</h2>
-        <p className="text-sm text-muted-foreground">Choose your training type and start improving</p>
-      </div>
 
       {/* Quick Start */}
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
