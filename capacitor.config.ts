@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.99f62b7319e4491192b37c7d3651fa71',
+  appId: 'com.lovable.playertracker',
   appName: 'caidt-player-performance-tracker',
   webDir: 'dist',
   server: {
