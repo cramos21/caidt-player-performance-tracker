@@ -50,6 +50,9 @@
     --app-bg-from: 220 84% 8%; /* Darker blue */
     --app-bg-via: 220 84% 6%; /* Even darker blue */
     --app-bg-to: 220 84% 8%; /* Back to slightly lighter dark blue */
+
+    /* Custom bottom navigation color - darker than card but lighter than background */
+    --bottom-nav-bg: 220 84% 12%; /* Darker than card, lighter than app background */
   }
 
   .dark {
@@ -93,6 +96,9 @@
     --app-bg-from: 220 84% 8%; /* Darker blue */
     --app-bg-via: 220 84% 6%; /* Even darker blue */
     --app-bg-to: 220 84% 8%; /* Back to slightly lighter dark blue */
+
+    /* Custom bottom navigation color - darker than card but lighter than background */
+    --bottom-nav-bg: 220 84% 12%; /* Darker than card, lighter than app background */
   }
 }
 

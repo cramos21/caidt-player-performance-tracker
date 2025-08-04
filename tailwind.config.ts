@@ -67,7 +67,9 @@ export default {
 					'from': 'hsl(var(--app-bg-from))',
 					'via': 'hsl(var(--app-bg-via))',
 					'to': 'hsl(var(--app-bg-to))'
-				}
+				},
+				// Custom bottom navigation color
+				'bottom-nav': 'hsl(var(--bottom-nav-bg))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
