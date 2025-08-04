@@ -2,10 +2,6 @@
   "appId": "com.lovable.playertracker",
   "appName": "caidt-player-performance-tracker",
   "webDir": "dist",
-  "server": {
-    "url": "https://99f62b73-19e4-4911-92b3-7c7d3651fa71.lovableproject.com?forceHideBadge=true",
-    "cleartext": true
-  },
   "plugins": {
     "BluetoothLe": {
       "displayStrings": {
