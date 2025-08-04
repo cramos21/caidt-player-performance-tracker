@@ -170,7 +170,10 @@ const DashboardTab = ({
               size="sm" 
               variant="outline" 
               className="absolute -bottom-1 -right-1 w-6 h-6 p-0 rounded-full"
-              onClick={onShowProfile}
+              onClick={() => {
+                // Navigate to account tab instead of showing profile overlay
+                window.dispatchEvent(new CustomEvent('navigate-to-account'));
+              }}
             >
               <Camera className="w-3 h-3" />
             </Button>
@@ -236,7 +239,10 @@ const DashboardTab = ({
               <Target className="w-4 h-4 text-primary" />
               Goals & Rewards
             </CardTitle>
-            <Button variant="ghost" size="sm" onClick={onShowGoals}>
+            <Button variant="ghost" size="sm" onClick={() => {
+              // Navigate to goals tab instead of showing goals overlay
+              window.dispatchEvent(new CustomEvent('navigate-to-goals'));
+            }}>
               View All
             </Button>
           </div>

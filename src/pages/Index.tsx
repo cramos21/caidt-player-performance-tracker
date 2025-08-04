@@ -26,7 +26,7 @@ const Index = () => {
     name: "Alex Johnson",
     position: "Midfielder",
     team: "FC Thunder",
-    avatar: "",
+    avatar: "/src/assets/soccer-player-avatar.jpg",
     level: "Pro",
     weeklyGoal: 5,
     currentStreak: 3
@@ -83,6 +83,20 @@ const Index = () => {
     }
     return () => clearInterval(interval);
   }, [isConnected, currentSession]);
+
+  // Listen for navigation events from dashboard
+  useEffect(() => {
+    const handleNavigateToAccount = () => setActiveTab('account');
+    const handleNavigateToGoals = () => setActiveTab('goals');
+    
+    window.addEventListener('navigate-to-account', handleNavigateToAccount);
+    window.addEventListener('navigate-to-goals', handleNavigateToGoals);
+    
+    return () => {
+      window.removeEventListener('navigate-to-account', handleNavigateToAccount);
+      window.removeEventListener('navigate-to-goals', handleNavigateToGoals);
+    };
+  }, []);
 
   // Define handleStartTraining function
   const handleStartTraining = () => {

@@ -48,7 +48,7 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
           Connect Your Soccer Tracker
         </CardTitle>
         <CardDescription className="text-sm">
-          Connect your physical soccer boot tracker to start collecting real-time performance data
+          Connect your physical soccer tracker to start collecting real-time performance data
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -98,7 +98,7 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
               )}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Make sure your Arduino Nano tracker is within 10 meters and powered on
+              Make sure your Performance Soccer Tracker is within 10 meters and powered on
             </p>
           </div>
         ) : (
