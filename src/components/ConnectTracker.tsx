@@ -18,17 +18,32 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   const [showDevices, setShowDevices] = useState(false);
   const [scanInProgress, setScanInProgress] = useState(false);
 
-  // Test if BLE is available at all
+  // Test if BLE is available at all using the proper hook initialization
   const testBLE = async () => {
     try {
       console.log('🧪 === DETAILED BLE TEST ===');
       console.log('Platform:', Capacitor.getPlatform());
       console.log('Is native platform:', Capacitor.isNativePlatform());
       
-      // Test 1: Basic initialization
-      console.log('🔧 Test 1: Initialize BLE...');
-      await BleClient.initialize();
-      console.log('✅ BLE Initialize successful');
+      if (!Capacitor.isNativePlatform()) {
+        toast.error('Bluetooth requires a native app build');
+        return;
+      }
+      
+      // Use the proper initialization from useBluetooth hook
+      console.log('🔧 Test 1: Initialize BLE using hook method...');
+      
+      // Initialize with platform-specific logic like the hook does
+      if (Capacitor.getPlatform() === 'ios') {
+        console.log('📱 iOS detected - requesting explicit permissions...');
+        await BleClient.initialize({
+          androidNeverForLocation: false
+        });
+        console.log('✅ iOS BLE initialized with permissions');
+      } else {
+        await BleClient.initialize();
+        console.log('✅ Android BLE initialized');
+      }
       
       // Test 2: Check if enabled
       console.log('🔧 Test 2: Check if BLE enabled...');
