@@ -87,12 +87,12 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
             >
               {isScanning ? (
                 <>
-                  <Search className="w-4 h-4 mr-2 animate-spin" />
+                  <Search className="w-4 h-4 mr-1 animate-spin" />
                   Scanning...
                 </>
               ) : (
                 <>
-                  <Bluetooth className="w-4 h-4 mr-2" />
+                  <Bluetooth className="w-4 h-4 mr-1" />
                   Scan for Tracker
                 </>
               )}

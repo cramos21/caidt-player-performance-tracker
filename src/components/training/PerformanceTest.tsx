@@ -71,7 +71,7 @@ const PerformanceTest = ({ onBack, onStartTraining, isConnected = false }: Perfo
             className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
             disabled={!isConnected}
           >
-            <Trophy className="w-5 h-5 mr-3" />
+            <Trophy className="w-5 h-5 mr-1" />
             {isConnected ? 'Start Performance Test' : 'Connect Tracker First'}
           </Button>
         </CardContent>

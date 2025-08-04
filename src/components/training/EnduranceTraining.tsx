@@ -65,7 +65,7 @@ const EnduranceTraining = ({ onBack, onStartTraining, isConnected = false }: End
             className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
             disabled={!isConnected}
           >
-            <Timer className="w-5 h-5 mr-3" />
+            <Timer className="w-5 h-5 mr-1" />
             {isConnected ? 'Start Endurance Run' : 'Connect Tracker First'}
           </Button>
         </CardContent>

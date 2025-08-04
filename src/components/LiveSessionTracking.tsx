@@ -94,7 +94,7 @@ const LiveSessionTracking = ({ liveData, onPause, onEndSession, onBack, isPaused
             size="lg" 
             className="w-full"
           >
-            <Pause className="w-5 h-5 mr-2" />
+            <Pause className="w-5 h-5 mr-1" />
             {isPaused ? 'Resume' : 'Pause'} Session
           </Button>
           
@@ -104,7 +104,7 @@ const LiveSessionTracking = ({ liveData, onPause, onEndSession, onBack, isPaused
             size="lg" 
             className="w-full"
           >
-            <Square className="w-5 h-5 mr-2" />
+            <Square className="w-5 h-5 mr-1" />
             End Session
           </Button>
 

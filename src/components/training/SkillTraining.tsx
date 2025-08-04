@@ -65,7 +65,7 @@ const SkillTraining = ({ onBack, onStartTraining, isConnected = false }: SkillTr
             className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
             disabled={!isConnected}
           >
-            <Target className="w-5 h-5 mr-3" />
+            <Target className="w-5 h-5 mr-1" />
             {isConnected ? 'Start Skill Training' : 'Connect Tracker First'}
           </Button>
         </CardContent>

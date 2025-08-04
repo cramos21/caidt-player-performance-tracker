@@ -49,7 +49,7 @@ const StartTrainingSession = ({ onStartCountdown, onBack }: StartTrainingSession
             size="lg" 
             className="w-full h-16 text-lg font-bold bg-primary hover:bg-primary/90"
           >
-            <Play className="w-6 h-6 mr-3" />
+            <Play className="w-6 h-6 mr-1" />
             Start Training Session
           </Button>
           
