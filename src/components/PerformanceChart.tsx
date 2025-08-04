@@ -37,8 +37,8 @@ const PerformanceChart = () => {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="weekly" className="space-y-4">
-          <div className="overflow-x-auto">
-            <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground min-w-max">
+          <div className="overflow-x-auto pb-2">
+            <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-max">
               <TabsTrigger value="weekly" className="whitespace-nowrap px-4">Weekly Overview</TabsTrigger>
               <TabsTrigger value="session" className="whitespace-nowrap px-4">Session Analysis</TabsTrigger>
               <TabsTrigger value="kicks" className="whitespace-nowrap px-4">Kick Performance</TabsTrigger>
@@ -48,10 +48,10 @@ const PerformanceChart = () => {
           <TabsContent value="weekly" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={weeklyData} margin={{ left: -10, right: 20, top: 5, bottom: 5 }}>
+                <LineChart data={weeklyData} margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
-                  <YAxis width={30} />
+                  <YAxis width={40} />
                   <Tooltip />
                   <Line 
                     type="monotone" 
@@ -77,10 +77,10 @@ const PerformanceChart = () => {
           <TabsContent value="session" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sessionData} margin={{ left: -10, right: 20, top: 5, bottom: 5 }}>
+                <LineChart data={sessionData} margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="minute" label={{ value: 'Minutes', position: 'insideBottom', offset: -10 }} />
-                  <YAxis width={30} />
+                  <YAxis width={40} />
                   <Tooltip />
                   <Line 
                     type="monotone" 
@@ -98,10 +98,10 @@ const PerformanceChart = () => {
           <TabsContent value="kicks" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData} margin={{ left: -10, right: 20, top: 5, bottom: 5 }}>
+                <BarChart data={weeklyData} margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
-                  <YAxis width={30} />
+                  <YAxis width={40} />
                   <Tooltip />
                   <Bar 
                     dataKey="kicks" 
