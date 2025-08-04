@@ -65,30 +65,38 @@ export const useBluetooth = () => {
         return [];
       }
 
-      addDebug('✅ Bluetooth initialized, starting scan...');
+      addDebug('✅ Bluetooth initialized, requesting permissions...');
       
-      // Check if we have location permissions
+      // Simplified scan without extra options that might cause issues
       try {
+        addDebug('🔍 Starting basic BLE scan...');
         await BleClient.requestLEScan(
-          {
-            allowDuplicates: false,
-            scanMode: 1 // SCAN_MODE_LOW_LATENCY
-          },
+          {},
           (result) => {
             const deviceInfo = `📱 Found: ${result.device.name || 'Unknown'} (${result.device.deviceId.slice(0, 8)}...)`;
             addDebug(deviceInfo);
           }
         );
-        addDebug('✅ Scan started successfully');
+        addDebug('✅ Scan started, waiting 8 seconds...');
       } catch (scanError) {
         addDebug(`❌ Failed to start scan: ${scanError}`);
-        toast.error('Failed to start Bluetooth scan. Check permissions.');
-        return [];
+        
+        // Try alternative scan method
+        addDebug('🔄 Trying alternative scan method...');
+        try {
+          await BleClient.requestLEScan({}, (result) => {
+            addDebug(`📱 Alt method found: ${result.device.name || 'Unknown'}`);
+          });
+          addDebug('✅ Alternative scan started');
+        } catch (altError) {
+          addDebug(`❌ Alternative scan also failed: ${altError}`);
+          toast.error('Failed to start Bluetooth scan. Check permissions in Settings.');
+          return [];
+        }
       }
 
-      // Scan for 10 seconds
-      addDebug('⏳ Scanning for 10 seconds...');
-      await new Promise(resolve => setTimeout(resolve, 10000));
+      // Scan for 8 seconds (shorter timeout)
+      await new Promise(resolve => setTimeout(resolve, 8000));
       
       addDebug('🛑 Stopping scan and getting results...');
       
@@ -98,24 +106,41 @@ export const useBluetooth = () => {
       
       addDebug(`📋 Total devices found: ${allDevices.length}`);
       allDevices.forEach((device, index) => {
-        addDebug(`Device ${index + 1}: ${device.name || 'Unknown'}`);
+        addDebug(`Device ${index + 1}: ${device.name || 'No Name'} - ID: ${device.deviceId.slice(-6)}`);
       });
       
-      // For debugging: return ALL devices, not just filtered ones
       if (allDevices.length === 0) {
         addDebug('❌ No Bluetooth devices found at all');
-        toast.error('No Bluetooth devices found. Make sure Bluetooth is enabled.');
+        toast.error('No Bluetooth devices found. Make sure your Arduino is advertising.');
       } else {
         addDebug(`✅ Found ${allDevices.length} total Bluetooth devices`);
-        toast.success(`Found ${allDevices.length} Bluetooth devices. Look for your Arduino in the list.`);
+        // Look specifically for devices that might be the Arduino
+        const possibleTrackers = allDevices.filter(device => 
+          device.name && (
+            device.name.toLowerCase().includes('player') ||
+            device.name.toLowerCase().includes('performance') ||
+            device.name.toLowerCase().includes('tracker') ||
+            device.name.toLowerCase().includes('arduino') ||
+            device.name.toLowerCase().includes('nano')
+          )
+        );
+        
+        if (possibleTrackers.length > 0) {
+          addDebug(`🎯 Found ${possibleTrackers.length} potential tracker(s)`);
+          toast.success(`Found ${possibleTrackers.length} potential tracker device(s)!`);
+        } else {
+          addDebug('⚠️ No obvious tracker devices found by name');
+          toast.info(`Found ${allDevices.length} Bluetooth devices. Look for "Player Performance Tracker".`);
+        }
       }
       
-      return allDevices; // Return ALL devices for debugging
+      return allDevices;
     } catch (error) {
       addDebug(`❌ Scan failed: ${error}`);
-      toast.error('Failed to scan for devices');
+      toast.error('Failed to scan for devices: ' + error);
       return [];
     } finally {
+      addDebug('🏁 Scan process completed');
       setIsScanning(false);
     }
   }, [initializeBluetooth]);
