@@ -1,15 +1,7 @@
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ConnectTracker from "@/components/ConnectTracker";
-import CountdownScreen from "@/components/CountdownScreen";
-import LiveSessionTracking from "@/components/LiveSessionTracking";
-import PairingConfirmation from "@/components/PairingConfirmation";
-import LiveArduinoData from "@/components/LiveArduinoData";
-import { useBluetooth } from "@/hooks/useBluetooth";
-import { Activity, Zap, Target, Timer, Trophy, Camera } from "lucide-react";
+import { Timer, Activity, Target } from "lucide-react";
 
 interface DashboardTabProps {
   isConnected: boolean;
@@ -24,258 +16,126 @@ interface DashboardTabProps {
   onShowGoals: () => void;
 }
 
-const DashboardTab = ({
-  isConnected,
-  setIsConnected,
-  currentSession,
+const DashboardTab = ({ 
+  isConnected, 
+  setIsConnected, 
+  currentSession, 
   setCurrentSession,
   liveData,
-  setLiveData,
   playerData,
-  onShowProfile,
   goals,
-  onShowGoals
+  onShowGoals 
 }: DashboardTabProps) => {
-  const [showCountdown, setShowCountdown] = useState(false);
-  const [showLiveSession, setShowLiveSession] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [lastSessionData, setLastSessionData] = useState<any>(null);
-  const [showPairingConfirmation, setShowPairingConfirmation] = useState(false);
-  const { isConnected: bluetoothConnected, trackerData } = useBluetooth();
-
-  // Update parent state when bluetooth connection changes
-  useEffect(() => {
-    setIsConnected(bluetoothConnected);
-  }, [bluetoothConnected, setIsConnected]);
-
-  // Update live data when tracker data changes
-  useEffect(() => {
-    if (bluetoothConnected && trackerData) {
-      setLiveData({
-        speed: trackerData.speed,
-        distance: trackerData.distance,
-        kicks: trackerData.kicks,
-        duration: trackerData.sessionTime * 60 // Convert minutes to seconds
-      });
-    }
-  }, [trackerData, bluetoothConnected, setLiveData]);
-
-  // Today's summary stats
-  const todayStats = {
-    sessionsCompleted: lastSessionData ? 1 : (currentSession ? 1 : 0),
-    totalDistance: lastSessionData?.distance || liveData.distance || 2.3,
-    avgSpeed: lastSessionData?.maxSpeed || 18.5,
-    totalKicks: lastSessionData?.kicks || liveData.kicks || 34,
-    caloriesBurned: lastSessionData ? Math.floor(lastSessionData.duration * 4.5) : 245
-  };
-
-  const startCountdown = () => {
-    console.log("Starting countdown...");
-    setShowCountdown(true);
-    console.log("showCountdown set to true");
-  };
-
-  const handleCountdownComplete = () => {
-    setShowCountdown(false);
-    setShowLiveSession(true);
-    setCurrentSession(Date.now());
-    setLiveData({ speed: 0, distance: 0, kicks: 0, duration: 0 });
-  };
-
-  const handleCountdownCancel = () => {
-    setShowCountdown(false);
-  };
-
-  const handlePauseSession = () => {
-    setIsPaused(!isPaused);
-  };
-
-  const handleEndSession = () => {
-    // Save the session data before ending
-    const sessionSummary = {
-      ...liveData,
-      maxSpeed: Math.max(25, liveData.speed), // Keep track of max speed achieved
-      sessionDate: new Date().toISOString()
-    };
-    setLastSessionData(sessionSummary);
-    
-    setShowLiveSession(false);
-    setCurrentSession(null);
-    setIsPaused(false);
-  };
-
-  const handleBackFromLive = () => {
-    setShowLiveSession(false);
-    setCurrentSession(null);
-    setIsPaused(false);
-  };
-
-  const handleTrackerConnect = () => {
-    setShowPairingConfirmation(true);
-  };
-
-  const handleGoToDashboard = () => {
-    setShowPairingConfirmation(false);
+  const handleConnect = () => {
     setIsConnected(true);
+    setCurrentSession(Date.now());
   };
 
-  // Show pairing confirmation screen
-  if (showPairingConfirmation) {
-    return (
-      <PairingConfirmation
-        trackerName="SoccerTrack Pro"
-        onGoToDashboard={handleGoToDashboard}
-      />
-    );
-  }
-
-  // Show countdown screen
-  console.log("showCountdown:", showCountdown);
-  if (showCountdown) {
-    console.log("Rendering CountdownScreen");
-    return (
-      <CountdownScreen
-        onCountdownComplete={handleCountdownComplete}
-        onCancel={handleCountdownCancel}
-      />
-    );
-  }
-
-  // Show live session tracking
-  if (showLiveSession && currentSession) {
-    return (
-      <LiveSessionTracking
-        liveData={liveData}
-        onPause={handlePauseSession}
-        onEndSession={handleEndSession}
-        onBack={handleBackFromLive}
-        isPaused={isPaused}
-      />
-    );
-  }
+  const handleDisconnect = () => {
+    setIsConnected(false);
+    setCurrentSession(null);
+  };
 
   return (
     <div className="space-y-6 pb-24">
-      {/* Mobile Player Header */}
-      <div className="flex items-center justify-between pt-6">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Avatar className="w-16 h-16 border-2 border-primary/20">
-              <AvatarImage src={playerData.avatar} />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
-                {playerData.name.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="absolute -bottom-1 -right-1 w-6 h-6 p-0 rounded-full"
-              onClick={() => {
-                // Navigate to account tab instead of showing profile overlay
-                window.dispatchEvent(new CustomEvent('navigate-to-account'));
-              }}
-            >
-              <Camera className="w-3 h-3" />
-            </Button>
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-foreground">
-              {playerData.name.split(' ')[0]}
-            </h1>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span>{playerData.position}</span>
-              <span>•</span>
-              <span>{playerData.team}</span>
-            </div>
-            <Badge variant="secondary" className="mt-1 text-xs">{playerData.level}</Badge>
-          </div>
-        </div>
-        <Badge 
-          variant={isConnected ? "default" : "secondary"} 
-          className="flex items-center gap-1 text-xs"
-        >
-          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
-          <span>{isConnected ? 'Connected' : 'Offline'}</span>
-        </Badge>
+      <div className="pt-6">
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-2">Welcome back, {playerData.name}</p>
       </div>
 
-      {/* Today's Progress */}
-      <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Trophy className="w-4 h-4 text-primary" />
-              Today's Progress
-            </CardTitle>
-            <div className="text-right">
-              <div className="text-xs text-muted-foreground">Streak</div>
-              <div className="text-sm font-bold text-primary">{playerData.currentStreak} days</div>
-            </div>
-          </div>
+      {/* Connection Status */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            Tracker Status
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="text-center p-3 rounded-lg bg-primary/10">
-              <div className="text-lg font-bold text-foreground">{todayStats.sessionsCompleted}</div>
-              <div className="text-xs text-muted-foreground">Sessions</div>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-blue-500/10">
-              <div className="text-lg font-bold text-blue-400">{todayStats.totalDistance.toFixed(1)}km</div>
-              <div className="text-xs text-muted-foreground">Distance</div>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-green-400/10">
-              <div className="text-lg font-bold text-green-400">{todayStats.totalKicks}</div>
-              <div className="text-xs text-muted-foreground">Kicks</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Goals Quick View */}
-      <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
-        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Target className="w-4 h-4 text-primary" />
-              Goals & Rewards
-            </CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => {
-              // Navigate to goals tab instead of showing goals overlay
-              window.dispatchEvent(new CustomEvent('navigate-to-goals'));
-            }}>
-              View All
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+              <span className="text-sm">
+                {isConnected ? 'Connected' : 'Disconnected'}
+              </span>
+            </div>
+            <Button 
+              onClick={isConnected ? handleDisconnect : handleConnect}
+              variant={isConnected ? "destructive" : "default"}
+              size="sm"
+            >
+              {isConnected ? 'Disconnect' : 'Connect'}
             </Button>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {goals.slice(0, 2).map((goal) => (
-            <div key={goal.id} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{goal.title}</span>
-                <span className="text-xs text-muted-foreground">
-                  {goal.current}/{goal.target} {goal.type}
-                </span>
-              </div>
-              <div className="w-full bg-muted/20 rounded-full h-2">
-                <div 
-                  className="bg-primary h-2 rounded-full transition-all duration-300" 
-                  style={{ width: `${Math.min((goal.current / goal.target) * 100, 100)}%` }}
-                ></div>
-              </div>
-            </div>
-          ))}
         </CardContent>
       </Card>
 
-      {/* Connection Status */}
-      {!isConnected && <ConnectTracker onConnect={handleTrackerConnect} />}
+      {/* Live Data */}
+      {isConnected && currentSession && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Timer className="w-5 h-5" />
+              Live Session
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Speed</p>
+                <p className="text-lg font-semibold">{liveData.speed.toFixed(1)} km/h</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Distance</p>
+                <p className="text-lg font-semibold">{liveData.distance.toFixed(2)} km</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Kicks</p>
+                <p className="text-lg font-semibold">{liveData.kicks}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Duration</p>
+                <p className="text-lg font-semibold">{Math.floor(liveData.duration / 60)}:{(liveData.duration % 60).toString().padStart(2, '0')}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Arduino Nano Tracker Integration */}
-      <LiveArduinoData 
-        onSessionStart={() => setCurrentSession(Date.now())}
-        onSessionEnd={handleEndSession}
-        isSessionActive={!!currentSession}
-      />
+      {/* Quick Goals Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="w-5 h-5" />
+            Goals Progress
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {goals.slice(0, 2).map((goal) => (
+              <div key={goal.id} className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">{goal.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {goal.current}/{goal.target} {goal.type}
+                  </p>
+                </div>
+                <Badge variant="secondary">
+                  {Math.round((goal.current / goal.target) * 100)}%
+                </Badge>
+              </div>
+            ))}
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full mt-3"
+            onClick={onShowGoals}
+          >
+            View All Goals
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };

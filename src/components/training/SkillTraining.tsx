@@ -1,71 +1,61 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Target, Timer, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Target, Timer } from "lucide-react";
 
 interface SkillTrainingProps {
   onBack: () => void;
   onStartTraining: () => void;
-  isConnected?: boolean;
+  isConnected: boolean;
 }
 
-const SkillTraining = ({ onBack, onStartTraining, isConnected = false }: SkillTrainingProps) => {
+const SkillTraining = ({ onBack, onStartTraining, isConnected }: SkillTrainingProps) => {
   return (
     <div className="space-y-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center gap-4 pt-6">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="w-4 h-4" />
+      <div className="pt-6">
+        <Button variant="ghost" onClick={onBack} className="mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Training
         </Button>
         <h1 className="text-2xl font-bold text-foreground">Skill Training</h1>
+        <p className="text-sm text-muted-foreground mt-2">Focused skill development session</p>
       </div>
 
-      {/* Training Overview */}
-      <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-green-400" />
-            Focused Skill Training
+            <Target className="w-5 h-5" />
+            Session Details
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Focused drills to improve technique. Perfect for developing ball control and accuracy.
-          </p>
-          
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-3 rounded-lg bg-muted/20">
-              <div className="flex items-center gap-2 mb-1">
-                <Timer className="w-4 h-4 text-green-400" />
-                <span className="text-sm font-medium">Duration</span>
-              </div>
-              <p className="text-xs text-muted-foreground">30-45 minutes</p>
+            <div className="p-3 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Duration</p>
+              <p className="font-semibold">30-45 min</p>
             </div>
-            <div className="p-3 rounded-lg bg-muted/20">
-              <div className="flex items-center gap-2 mb-1">
-                <Zap className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm font-medium">Intensity</span>
-              </div>
-              <p className="text-xs text-muted-foreground">Medium</p>
+            <div className="p-3 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Focus</p>
+              <p className="font-semibold">Ball Control</p>
             </div>
           </div>
-
-          <div className="space-y-3">
-            <h4 className="font-medium text-sm">Training focus:</h4>
-            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-              <div>• Ball control drills</div>
-              <div>• Passing accuracy</div>
-              <div>• First touch practice</div>
-              <div>• Shooting technique</div>
-            </div>
+          
+          <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <h3 className="font-medium text-blue-400 mb-2">Training Focus:</h3>
+            <ul className="text-sm text-blue-300 space-y-1">
+              <li>• First touch and ball control</li>
+              <li>• Passing accuracy</li>
+              <li>• Dribbling techniques</li>
+              <li>• Shooting precision</li>
+            </ul>
           </div>
 
           <Button 
+            className="w-full" 
             onClick={onStartTraining}
-            size="lg" 
-            className={`w-full h-14 text-lg font-bold ${isConnected ? 'bg-primary hover:bg-primary/90' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}
             disabled={!isConnected}
+            size="lg"
           >
-            <Target className="w-5 h-5 mr-0.5" />
+            <Timer className="w-4 h-4 mr-2" />
             {isConnected ? 'Start Skill Training' : 'Connect Tracker First'}
           </Button>
         </CardContent>
