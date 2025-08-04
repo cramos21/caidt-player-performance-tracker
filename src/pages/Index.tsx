@@ -123,12 +123,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <ScrollArea className="h-screen">
-        <div className="safe-area-inset px-4 py-6 max-w-sm mx-auto pb-24">
-          
+      <div className="h-screen overflow-y-auto overscroll-y-contain">
+        <div className="px-4 py-6 max-w-sm mx-auto pb-24 min-h-full">
           {renderTabContent()}
         </div>
-      </ScrollArea>
+      </div>
       
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
