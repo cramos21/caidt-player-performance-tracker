@@ -19,15 +19,20 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
 
   const handleScan = async () => {
     try {
+      console.log('Starting scan...');
       const devices = await scanForDevices();
+      console.log('Scan completed, devices found:', devices.length);
       setAvailableDevices(devices);
       setShowDevices(true);
       
       if (devices.length === 0) {
         toast.error('No soccer trackers found. Make sure your device is on and nearby.');
+      } else {
+        console.log('Devices:', devices.map(d => ({ name: d.name, id: d.deviceId })));
       }
     } catch (error) {
       console.error('Scan failed:', error);
+      setShowDevices(true); // Show devices section even if scan failed so user can try again
     }
   };
 
