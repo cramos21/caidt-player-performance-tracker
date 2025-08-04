@@ -19,66 +19,104 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
 
   const handleScan = async () => {
     try {
-      console.log('🚀 Starting BASIC scan - no filters...');
+      console.log('🚀 === STARTING BLUETOOTH SCAN DEBUG ===');
+      console.log('Platform:', navigator.userAgent);
+      console.log('Bluetooth available:', 'bluetooth' in navigator);
+      
       setScanInProgress(true);
       setAvailableDevices([]);
       setShowDevices(true);
       
-      // Very basic initialization
+      // Test if BLE is available at all
+      console.log('🔧 Testing BLE availability...');
       try {
         await BleClient.initialize();
-        console.log('✅ BLE initialized');
-      } catch (e) {
-        console.log('⚠️ BLE already initialized');
+        console.log('✅ BLE Client initialized successfully');
+      } catch (initError) {
+        console.error('❌ BLE initialization failed:', initError);
+        throw new Error(`BLE initialization failed: ${initError.message}`);
       }
 
-      // SIMPLEST possible scan - no filters at all
-      console.log('🔍 Starting most basic scan possible...');
-      await BleClient.requestLEScan(
-        {
-          // Minimal options - just find everything
-        }, 
-        (result) => {
-          console.log(`📱 FOUND DEVICE: "${result.device.name || 'No Name'}" - ID: ${result.device.deviceId}`);
-          setAvailableDevices(prev => {
-            const exists = prev.find(d => d.deviceId === result.device.deviceId);
-            if (!exists) {
-              console.log(`➕ Adding: ${result.device.name || 'Unnamed'}`);
-              return [...prev, result.device];
-            }
-            return prev;
-          });
-        }
-      );
-
-      // Scan for 5 seconds
-      console.log('⏳ Scanning for 5 seconds...');
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Check if we can even start a scan
+      console.log('🔍 Attempting to start scan...');
+      let deviceCount = 0;
       
-      // Stop and get results
-      await BleClient.stopLEScan();
-      console.log('🛑 Scan stopped');
+      try {
+        await BleClient.requestLEScan(
+          {}, // Absolutely minimal options
+          (result) => {
+            deviceCount++;
+            console.log(`📱 DEVICE ${deviceCount}: "${result.device.name || 'UNNAMED'}" - ID: ${result.device.deviceId}`);
+            console.log('   Full device object:', result.device);
+            
+            setAvailableDevices(prev => {
+              const exists = prev.find(d => d.deviceId === result.device.deviceId);
+              if (!exists) {
+                console.log(`   ➕ Adding to list`);
+                return [...prev, result.device];
+              } else {
+                console.log(`   🔄 Already in list`);
+                return prev;
+              }
+            });
+          }
+        );
+        console.log('✅ Scan started successfully, waiting...');
+      } catch (scanError) {
+        console.error('❌ requestLEScan failed:', scanError);
+        throw new Error(`Scan start failed: ${scanError.message}`);
+      }
+
+      // Wait for scan
+      console.log('⏳ Scanning for 6 seconds...');
+      for (let i = 1; i <= 6; i++) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(`   ⏱️ ${i}/6 seconds... devices found so far: ${deviceCount}`);
+      }
+      
+      // Stop scan
+      console.log('🛑 Stopping scan...');
+      try {
+        await BleClient.stopLEScan();
+        console.log('✅ Scan stopped');
+      } catch (stopError) {
+        console.error('⚠️ Error stopping scan:', stopError);
+      }
       
       // Get final device list
-      const finalDevices = await BleClient.getDevices([]);
-      console.log(`📋 Final device count: ${finalDevices.length}`);
-      
-      // Show ALL devices found, no filtering
-      setAvailableDevices(finalDevices);
-      setScanInProgress(false);
-      
-      if (finalDevices.length === 0) {
-        console.log('❌ NO DEVICES FOUND AT ALL');
-        toast.error('No Bluetooth devices found. Check permissions and try again.');
-      } else {
-        console.log(`✅ Found ${finalDevices.length} total devices`);
-        toast.success(`Found ${finalDevices.length} Bluetooth devices!`);
+      console.log('📋 Getting final device list...');
+      try {
+        const finalDevices = await BleClient.getDevices([]);
+        console.log(`📱 Final device count: ${finalDevices.length}`);
+        finalDevices.forEach((device, i) => {
+          console.log(`   ${i+1}. "${device.name || 'UNNAMED'}" - ${device.deviceId}`);
+        });
+        
+        setAvailableDevices(finalDevices);
+        setScanInProgress(false);
+        
+        if (finalDevices.length === 0) {
+          console.log('❌ NO DEVICES FOUND');
+          toast.error('No Bluetooth devices found. Check if Bluetooth is enabled and permissions are granted.');
+        } else {
+          console.log(`✅ SUCCESS: Found ${finalDevices.length} devices`);
+          toast.success(`Found ${finalDevices.length} Bluetooth devices!`);
+        }
+      } catch (getDevicesError) {
+        console.error('❌ getDevices failed:', getDevicesError);
+        setScanInProgress(false);
+        toast.error(`Failed to get device list: ${getDevicesError.message}`);
       }
       
+      console.log('🏁 === SCAN DEBUG COMPLETE ===');
+      
     } catch (error) {
-      console.error('❌ Basic scan failed:', error);
-      toast.error(`Scan failed: ${error.message || error}`);
+      console.error('❌ === SCAN COMPLETELY FAILED ===');
+      console.error('Error details:', error);
+      console.error('Error stack:', error.stack);
+      
       setScanInProgress(false);
+      toast.error(`Bluetooth scan failed: ${error.message}. Try restarting the app.`);
     }
   };
 
