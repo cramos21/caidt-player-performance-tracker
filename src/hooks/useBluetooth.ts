@@ -39,32 +39,35 @@ export const useBluetooth = () => {
       console.log('🔧 Step 1: Checking platform...');
       
       console.log('🔧 Step 2: Initializing BLE Client...');
-      // Add timeout to prevent hanging
-      const initPromise = BleClient.initialize();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Bluetooth initialization timeout after 5 seconds')), 5000)
-      );
-      
-      await Promise.race([initPromise, timeoutPromise]);
+      await BleClient.initialize();
       console.log('✅ Step 2 Complete: BLE Client initialized');
       
-      console.log('🔧 Step 3: Requesting Bluetooth permissions...');
-      // Explicitly request permissions
+      console.log('🔧 Step 3: Requesting permissions explicitly...');
+      
+      // For iOS, we need to request permissions by attempting operations
       try {
-        await BleClient.requestLEScan({}, () => {});
-        await new Promise(resolve => setTimeout(resolve, 100)); // Brief scan
+        // This will trigger the permission request dialogs
+        console.log('🔧 Requesting Bluetooth permissions...');
+        await BleClient.requestLEScan({
+          allowDuplicates: false
+        }, () => {});
+        
+        // Let it run briefly to trigger permission dialog
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await BleClient.stopLEScan();
-        console.log('✅ Step 3 Complete: Bluetooth permissions granted');
+        
+        console.log('✅ Step 3 Complete: Bluetooth permissions should now be requested');
       } catch (permError) {
-        console.log('⚠️ Permission request failed:', permError);
-        // Continue anyway - maybe permissions were already granted
+        console.log('⚠️ Initial permission request failed (this is normal):', permError);
+        // This is actually expected - the permission dialog might appear but scanning fails
+        // until user grants permission
       }
       
-      console.log('✅ Bluetooth initialization fully complete');
+      console.log('✅ Bluetooth initialization complete - check iPhone Settings for permission prompts');
       return true;
     } catch (error) {
       console.error('❌ Failed to initialize Bluetooth:', error);
-      toast.error('Failed to initialize Bluetooth. Please check your Bluetooth settings and try again.');
+      toast.error('Failed to initialize Bluetooth. Please check your settings and restart the app.');
       return false;
     }
   }, []);
