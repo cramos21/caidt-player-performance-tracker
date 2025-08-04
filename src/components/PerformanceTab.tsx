@@ -11,7 +11,7 @@ const PerformanceTab = ({ liveData, currentSession }: PerformanceTabProps) => {
   return (
     <div className="space-y-6 pb-24">
       {/* Title */}
-      <div className="pt-6">
+      <div className="pt-2">
         <h1 className="text-2xl font-bold text-foreground">Performance</h1>
         <p className="text-sm text-muted-foreground mt-2">Track your progress and analyze your game</p>
       </div>

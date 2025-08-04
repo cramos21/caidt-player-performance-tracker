@@ -119,7 +119,7 @@ const Index = () => {
   if (showProfile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
+        <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
           <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />
         </div>
         <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
@@ -130,7 +130,7 @@ const Index = () => {
   if (showGoalsRewards) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
+        <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
           <GoalsRewards goals={goals} setGoals={setGoals} />
         </div>
         <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
@@ -154,7 +154,7 @@ const Index = () => {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
+        <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
           {trainingComponents[currentTrainingType]}
         </div>
         <BottomNavigation 
@@ -200,7 +200,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="px-4 py-6 max-w-sm mx-auto pb-32">
+      <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
         {renderTabContent()}
       </div>
       
