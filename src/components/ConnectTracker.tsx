@@ -51,13 +51,11 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
       
       console.log(`📋 Total devices found: ${allDevices.length}`);
       
-      // Filter for Arduino/tracker devices
+      // Filter specifically for your soccer tracker (with "Player Performance" in name)
       const trackers = allDevices.filter(device => {
         const name = device.name?.toLowerCase() || '';
-        return name.includes('arduino') || 
-               name.includes('performance') || 
-               name.includes('player') ||
-               name.includes('tracker');
+        // Only show the actual soccer tracker, not random Arduino devices
+        return name.includes('player') && name.includes('performance');
       });
       
       console.log('Filtered trackers:', trackers.length);
