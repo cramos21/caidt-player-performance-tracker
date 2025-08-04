@@ -17,6 +17,23 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   const [showDevices, setShowDevices] = useState(false);
   const [scanInProgress, setScanInProgress] = useState(false);
 
+  // Test if BLE is available at all
+  const testBLE = async () => {
+    try {
+      console.log('🧪 Testing BLE availability...');
+      const isEnabled = await BleClient.isEnabled();
+      console.log('📱 Bluetooth enabled:', isEnabled);
+      
+      const isLocationEnabled = await BleClient.isLocationEnabled();
+      console.log('📍 Location enabled:', isLocationEnabled);
+      
+      toast.info(`BLE enabled: ${isEnabled}, Location: ${isLocationEnabled}`);
+    } catch (error) {
+      console.error('❌ BLE test failed:', error);
+      toast.error(`BLE test failed: ${error.message}`);
+    }
+  };
+
   const handleScan = async () => {
     try {
       console.log('🚀 === STARTING BLUETOOTH SCAN DEBUG ===');
@@ -193,24 +210,35 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
 
         {!showDevices ? (
           <div className="text-center space-y-3">
-            <Button 
-              onClick={handleScan} 
-              size="lg" 
-              disabled={isScanning || scanInProgress}
-              className="w-full sm:w-auto h-14 text-lg font-bold bg-primary hover:bg-primary/90 touch-target px-8"
-            >
-              {scanInProgress ? (
-                <>
-                  <Search className="w-4 h-4 mr-0.5 animate-spin" />
-                  Scanning...
-                </>
-              ) : (
-                <>
-                  <Bluetooth className="w-4 h-4 mr-0.5" />
-                  Scan for Tracker
-                </>
-              )}
-            </Button>
+            <div className="space-y-3">
+              <Button 
+                onClick={handleScan} 
+                size="lg" 
+                disabled={isScanning || scanInProgress}
+                className="w-full sm:w-auto h-14 text-lg font-bold bg-primary hover:bg-primary/90 touch-target px-8"
+              >
+                {scanInProgress ? (
+                  <>
+                    <Search className="w-4 h-4 mr-0.5 animate-spin" />
+                    Scanning...
+                  </>
+                ) : (
+                  <>
+                    <Bluetooth className="w-4 h-4 mr-0.5" />
+                    Scan for Tracker
+                  </>
+                )}
+              </Button>
+              
+              <Button 
+                onClick={testBLE}
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+              >
+                Test BLE Status
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground">
               Make sure your Arduino soccer tracker is within 10 meters and powered on
             </p>
