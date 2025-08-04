@@ -55,19 +55,31 @@ export const useBluetooth = () => {
         return [];
       }
 
-      // Scan for all BLE devices (don't filter by service during scan)
-      await BleClient.requestLEScan(
-        {
-          allowDuplicates: false,
-          scanMode: 1 // SCAN_MODE_LOW_LATENCY
-        },
-        (result) => {
-          console.log('Device found:', result.device.name || 'Unknown', result.device.deviceId);
-        }
-      );
+      console.log('✅ Bluetooth initialized, starting scan...');
+      
+      // Check if we have location permissions
+      try {
+        await BleClient.requestLEScan(
+          {
+            allowDuplicates: false,
+            scanMode: 1 // SCAN_MODE_LOW_LATENCY
+          },
+          (result) => {
+            console.log('📱 Device discovered during scan:', result.device.name || 'Unknown', result.device.deviceId);
+          }
+        );
+        console.log('✅ Scan started successfully');
+      } catch (scanError) {
+        console.error('❌ Failed to start scan:', scanError);
+        toast.error('Failed to start Bluetooth scan. Check permissions.');
+        return [];
+      }
 
       // Scan for 10 seconds
+      console.log('⏳ Scanning for 10 seconds...');
       await new Promise(resolve => setTimeout(resolve, 10000));
+      
+      console.log('🛑 Stopping scan and getting results...');
       
       // Get all discovered devices
       const allDevices = await BleClient.getDevices([]);
