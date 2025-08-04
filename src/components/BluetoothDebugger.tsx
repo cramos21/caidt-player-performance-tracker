@@ -178,6 +178,11 @@ const BluetoothDebugger = () => {
       setDevices(allDevices);
       addLog(`✅ Scan completed - ${allDevices.length} devices discovered`);
 
+      // Log ALL device names for debugging
+      allDevices.forEach((device, index) => {
+        addLog(`Device ${index + 1}: "${device.name || 'No Name'}" - ID: ${device.deviceId.slice(-8)}`);
+      });
+
     } catch (error) {
       addLog(`❌ Advanced scan failed: ${error}`);
     } finally {
