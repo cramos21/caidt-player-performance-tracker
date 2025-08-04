@@ -10,6 +10,7 @@ import FreePlayTraining from "@/components/training/FreePlayTraining";
 import SkillTraining from "@/components/training/SkillTraining";
 import EnduranceTraining from "@/components/training/EnduranceTraining";
 import PerformanceTest from "@/components/training/PerformanceTest";
+import BluetoothDebugger from "@/components/BluetoothDebugger";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Index = () => {
@@ -184,6 +185,8 @@ const Index = () => {
         return <GoalsRewards goals={goals} setGoals={setGoals} />;
       case 'account':
         return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />;
+      case 'debug':
+        return <BluetoothDebugger />;
       default:
         return null;
     }
