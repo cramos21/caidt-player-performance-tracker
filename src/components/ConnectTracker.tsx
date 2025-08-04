@@ -13,7 +13,7 @@ interface ConnectTrackerProps {
 }
 
 const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
-  const { isScanning, scanForDevices, connectToDevice } = useBluetooth();
+  const { isScanning, scanForDevices, connectToDevice, debugInfo } = useBluetooth();
   const [availableDevices, setAvailableDevices] = useState<BleDevice[]>([]);
   const [showDevices, setShowDevices] = useState(false);
 
@@ -153,6 +153,18 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
               >
                 Back to Instructions
               </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Debug Information */}
+        {debugInfo.length > 0 && (
+          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+            <h5 className="text-sm font-semibold mb-2 text-muted-foreground">Debug Information:</h5>
+            <div className="text-xs text-muted-foreground space-y-1 max-h-32 overflow-y-auto">
+              {debugInfo.map((info, index) => (
+                <div key={index} className="font-mono">{info}</div>
+              ))}
             </div>
           </div>
         )}

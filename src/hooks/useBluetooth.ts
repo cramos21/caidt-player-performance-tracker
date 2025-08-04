@@ -21,6 +21,7 @@ export const useBluetooth = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [connectedDevice, setConnectedDevice] = useState<BleDevice | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]); // Add debug info state
   const [trackerData, setTrackerData] = useState<SoccerTrackerData>({
     speed: 0,
     distance: 0,
@@ -45,17 +46,24 @@ export const useBluetooth = () => {
   }, []);
 
   const scanForDevices = useCallback(async (): Promise<BleDevice[]> => {
-    console.log('🔍 Starting Bluetooth scan...');
+    const addDebug = (msg: string) => {
+      console.log(msg);
+      setDebugInfo(prev => [...prev.slice(-10), `${new Date().toLocaleTimeString()}: ${msg}`]);
+    };
+    
+    addDebug('🔍 Starting Bluetooth scan...');
     try {
       setIsScanning(true);
-      console.log('📱 Checking platform and initializing...');
+      setDebugInfo([]); // Clear previous debug info
+      
+      addDebug('📱 Checking platform and initializing...');
       const initialized = await initializeBluetooth();
       if (!initialized) {
-        console.log('❌ Bluetooth initialization failed');
+        addDebug('❌ Bluetooth initialization failed');
         return [];
       }
 
-      console.log('✅ Bluetooth initialized, starting scan...');
+      addDebug('✅ Bluetooth initialized, starting scan...');
       
       // Check if we have location permissions
       try {
@@ -65,41 +73,44 @@ export const useBluetooth = () => {
             scanMode: 1 // SCAN_MODE_LOW_LATENCY
           },
           (result) => {
-            console.log('📱 Device discovered during scan:', result.device.name || 'Unknown', result.device.deviceId);
+            const deviceInfo = `📱 Found: ${result.device.name || 'Unknown'} (${result.device.deviceId.slice(0, 8)}...)`;
+            addDebug(deviceInfo);
           }
         );
-        console.log('✅ Scan started successfully');
+        addDebug('✅ Scan started successfully');
       } catch (scanError) {
-        console.error('❌ Failed to start scan:', scanError);
+        addDebug(`❌ Failed to start scan: ${scanError}`);
         toast.error('Failed to start Bluetooth scan. Check permissions.');
         return [];
       }
 
       // Scan for 10 seconds
-      console.log('⏳ Scanning for 10 seconds...');
+      addDebug('⏳ Scanning for 10 seconds...');
       await new Promise(resolve => setTimeout(resolve, 10000));
       
-      console.log('🛑 Stopping scan and getting results...');
+      addDebug('🛑 Stopping scan and getting results...');
       
       // Get all discovered devices
       const allDevices = await BleClient.getDevices([]);
       await BleClient.stopLEScan();
       
-      console.log('All discovered devices:', allDevices.map(d => ({ name: d.name, id: d.deviceId })));
+      addDebug(`📋 Total devices found: ${allDevices.length}`);
+      allDevices.forEach((device, index) => {
+        addDebug(`Device ${index + 1}: ${device.name || 'Unknown'}`);
+      });
       
       // For debugging: return ALL devices, not just filtered ones
-      console.log('DEBUGGING MODE: Returning all discovered devices');
       if (allDevices.length === 0) {
-        console.log('No Bluetooth devices found at all');
+        addDebug('❌ No Bluetooth devices found at all');
         toast.error('No Bluetooth devices found. Make sure Bluetooth is enabled.');
       } else {
-        console.log(`Found ${allDevices.length} total Bluetooth devices`);
+        addDebug(`✅ Found ${allDevices.length} total Bluetooth devices`);
         toast.success(`Found ${allDevices.length} Bluetooth devices. Look for your Arduino in the list.`);
       }
       
       return allDevices; // Return ALL devices for debugging
     } catch (error) {
-      console.error('Scan failed:', error);
+      addDebug(`❌ Scan failed: ${error}`);
       toast.error('Failed to scan for devices');
       return [];
     } finally {
@@ -236,6 +247,7 @@ export const useBluetooth = () => {
     isScanning,
     connectedDevice,
     trackerData,
+    debugInfo,
     scanForDevices,
     connectToDevice,
     disconnect,
