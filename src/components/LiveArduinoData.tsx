@@ -40,7 +40,7 @@ const LiveArduinoData = ({ onSessionStart, onSessionEnd, isSessionActive = false
           <BluetoothOff className="w-12 h-12 text-muted-foreground mb-4" />
           <h3 className="font-semibold text-foreground mb-2">No Tracker Connected</h3>
           <p className="text-sm text-muted-foreground">
-            Connect your Arduino Nano tracker to see live performance data
+            Connect your Performance Soccer Tracker to see live performance data.
           </p>
         </CardContent>
       </Card>
