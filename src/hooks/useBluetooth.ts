@@ -135,15 +135,27 @@ export const useBluetooth = () => {
         toast.error('No devices found. Make sure your Arduino is advertising.');
       } else {
         addDebug(`✅ Found ${allDevices.length} devices`);
-        const trackers = allDevices.filter(device => 
-          device.name && device.name.toLowerCase().includes('performance')
-        );
+        const trackers = allDevices.filter(device => {
+          // Look for Arduino devices or devices with "Performance" or "Player" in the name
+          const name = device.name?.toLowerCase() || '';
+          const hasTrackerName = name.includes('arduino') || 
+                                 name.includes('performance') || 
+                                 name.includes('player') ||
+                                 name.includes('tracker');
+          
+          if (hasTrackerName) {
+            addDebug(`🎯 Found potential tracker: ${device.name} (${device.deviceId.slice(-6)})`);
+          }
+          
+          return hasTrackerName;
+        });
         
         if (trackers.length > 0) {
           addDebug(`🎯 Found ${trackers.length} Performance Tracker(s)!`);
           toast.success(`Found ${trackers.length} Performance Tracker(s)!`);
         } else {
-          toast.info(`Found ${allDevices.length} devices. Look for "Player Performance Tracker".`);
+          addDebug(`ℹ️ No trackers found. Looking for devices with: Arduino, Performance, Player, or Tracker in name`);
+          toast.info(`Found ${allDevices.length} devices. Look for "Arduino" or "Player Performance Tracker".`);
         }
       }
       
