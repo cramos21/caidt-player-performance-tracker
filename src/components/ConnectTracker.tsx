@@ -83,16 +83,16 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
               onClick={handleScan} 
               size="lg" 
               disabled={isScanning}
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 touch-target px-8"
+              className="w-full sm:w-auto h-14 text-lg font-bold bg-primary hover:bg-primary/90 touch-target px-8"
             >
               {isScanning ? (
                 <>
-                  <Search className="w-4 h-4 mr-1 animate-spin" />
+                  <Search className="w-4 h-4 mr-0.5 animate-spin" />
                   Scanning...
                 </>
               ) : (
                 <>
-                  <Bluetooth className="w-4 h-4 mr-1" />
+                  <Bluetooth className="w-4 h-4 mr-0.5" />
                   Scan for Tracker
                 </>
               )}

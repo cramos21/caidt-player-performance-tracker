@@ -69,7 +69,7 @@ const TrainingTab = ({ onStartTraining, isConnected, onTrainingTypeSelect }: Tra
               size="lg" 
               className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
             >
-              <Play className="w-5 h-5 mr-1" />
+              <Play className="w-5 h-5 mr-0.5" />
               Start Training Now
             </Button>
           ) : (
@@ -78,7 +78,7 @@ const TrainingTab = ({ onStartTraining, isConnected, onTrainingTypeSelect }: Tra
               className="w-full h-14 text-lg font-bold bg-muted text-muted-foreground cursor-not-allowed"
               disabled
             >
-              <Play className="w-5 h-5 mr-1" />
+              <Play className="w-5 h-5 mr-0.5" />
               Connect Tracker First
             </Button>
           )}
