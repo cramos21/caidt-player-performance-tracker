@@ -125,7 +125,7 @@ const Index = () => {
 
   if (showProfile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-app-bg-from via-app-bg-via to-app-bg-to">
         <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
           <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />
         </div>
@@ -136,7 +136,7 @@ const Index = () => {
 
   if (showGoalsRewards) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-app-bg-from via-app-bg-via to-app-bg-to">
         <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
           <GoalsRewards goals={goals} setGoals={setGoals} />
         </div>
@@ -160,7 +160,7 @@ const Index = () => {
     };
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-app-bg-from via-app-bg-via to-app-bg-to">
         <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
           {trainingComponents[currentTrainingType]}
         </div>
@@ -206,7 +206,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-app-bg-from via-app-bg-via to-app-bg-to">
       <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
         {renderTabContent()}
       </div>

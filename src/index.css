@@ -45,6 +45,11 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 142.1 76.2% 36.3%;
+
+    /* Custom darker blue gradient for app background */
+    --app-bg-from: 220 84% 8%; /* Darker blue */
+    --app-bg-via: 220 84% 6%; /* Even darker blue */
+    --app-bg-to: 220 84% 8%; /* Back to slightly lighter dark blue */
   }
 
   .dark {
@@ -83,6 +88,11 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 142.1 76.2% 36.3%;
+
+    /* Custom darker blue gradient for app background - dark mode */
+    --app-bg-from: 220 84% 8%; /* Darker blue */
+    --app-bg-via: 220 84% 6%; /* Even darker blue */
+    --app-bg-to: 220 84% 8%; /* Back to slightly lighter dark blue */
   }
 }
 

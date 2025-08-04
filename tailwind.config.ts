@@ -61,6 +61,12 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom darker blue gradient colors
+				'app-bg': {
+					'from': 'hsl(var(--app-bg-from))',
+					'via': 'hsl(var(--app-bg-via))',
+					'to': 'hsl(var(--app-bg-to))'
 				}
 			},
 			borderRadius: {
