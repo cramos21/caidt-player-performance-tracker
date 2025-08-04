@@ -5,6 +5,7 @@ import { Bluetooth, Smartphone, CheckCircle, Search } from "lucide-react";
 import { useBluetooth } from "@/hooks/useBluetooth";
 import { useState } from "react";
 import { BleDevice, BleClient } from '@capacitor-community/bluetooth-le';
+import { Capacitor } from '@capacitor/core';
 import { toast } from 'sonner';
 
 interface ConnectTrackerProps {
@@ -20,17 +21,36 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   // Test if BLE is available at all
   const testBLE = async () => {
     try {
-      console.log('🧪 Testing BLE availability...');
+      console.log('🧪 === DETAILED BLE TEST ===');
+      console.log('Platform:', Capacitor.getPlatform());
+      console.log('Is native platform:', Capacitor.isNativePlatform());
+      
+      // Test 1: Basic initialization
+      console.log('🔧 Test 1: Initialize BLE...');
+      await BleClient.initialize();
+      console.log('✅ BLE Initialize successful');
+      
+      // Test 2: Check if enabled
+      console.log('🔧 Test 2: Check if BLE enabled...');
       const isEnabled = await BleClient.isEnabled();
       console.log('📱 Bluetooth enabled:', isEnabled);
       
+      // Test 3: Check location
+      console.log('🔧 Test 3: Check location enabled...');
       const isLocationEnabled = await BleClient.isLocationEnabled();
       console.log('📍 Location enabled:', isLocationEnabled);
       
-      toast.info(`BLE enabled: ${isEnabled}, Location: ${isLocationEnabled}`);
+      console.log('🧪 === ALL TESTS PASSED ===');
+      toast.success(`BLE: ${isEnabled}, Location: ${isLocationEnabled}`);
+      
     } catch (error) {
-      console.error('❌ BLE test failed:', error);
-      toast.error(`BLE test failed: ${error.message}`);
+      console.error('❌ === BLE TEST FAILED ===');
+      console.error('Error type:', error.constructor.name);
+      console.error('Error message:', error.message);
+      console.error('Error code:', error.code);
+      console.error('Full error:', error);
+      
+      toast.error(`BLE test failed: ${error.message || 'Unknown error'}`);
     }
   };
 

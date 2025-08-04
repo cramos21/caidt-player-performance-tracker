@@ -13,9 +13,10 @@
     }
   },
   "ios": {
+    "minVersion": "13.0",
     "permissions": {
       "BluetoothPeripheral": "Uses Bluetooth to connect to soccer tracker device",
-      "BluetoothAlways": "Uses Bluetooth to connect to soccer tracker device",
+      "BluetoothAlways": "Uses Bluetooth to connect to soccer tracker device", 
       "LocationWhenInUse": "Location permission is required for Bluetooth scanning"
     }
   },
