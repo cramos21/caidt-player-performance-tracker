@@ -141,7 +141,7 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
               <CheckCircle className="w-6 h-6 text-primary" />
             </div>
             <h4 className="font-semibold text-foreground">Step 3</h4>
-            <p className="text-sm text-muted-foreground">Click connect and start tracking</p>
+            <p className="text-sm text-muted-foreground">Tap "Scan for Tracker" to find your device</p>
           </div>
         </div>
 
