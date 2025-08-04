@@ -1,3 +1,4 @@
+
 import { Home, TrendingUp, Target, User, Play } from "lucide-react";
 
 interface BottomNavigationProps {
