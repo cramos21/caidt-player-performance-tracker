@@ -1,201 +1,100 @@
-import { useState, useEffect } from "react";
-import PlayerProfile from "@/components/PlayerProfile";
-import GoalsRewards from "@/components/GoalsRewards";
-import BottomNavigation from "@/components/BottomNavigation";
-import DashboardTab from "@/components/DashboardTab";
-import PerformanceTab from "@/components/PerformanceTab";
-import TrainingTab from "@/components/TrainingTab";
-import SplashScreen from "@/components/SplashScreen";
-import FreePlayTraining from "@/components/training/FreePlayTraining";
-import SkillTraining from "@/components/training/SkillTraining";
-import EnduranceTraining from "@/components/training/EnduranceTraining";
-import PerformanceTest from "@/components/training/PerformanceTest";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Bluetooth, Activity, Target, User, TrendingUp } from "lucide-react";
 
 const Index = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [currentSession, setCurrentSession] = useState(null);
-  const [showProfile, setShowProfile] = useState(false);
-  const [showGoalsRewards, setShowGoalsRewards] = useState(false);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [showSplash, setShowSplash] = useState(true);
-  const [currentTrainingType, setCurrentTrainingType] = useState<string | null>(null);
-  
-  // Player data - would come from your backend
-  const [playerData, setPlayerData] = useState({
-    name: "Alex Johnson",
-    position: "Midfielder",
-    team: "FC Thunder",
-    avatar: "/src/assets/soccer-player-avatar.jpg",
-    level: "Pro",
-    weeklyGoal: 5,
-    currentStreak: 3
-  });
-
-  // Mock real-time data
-  const [liveData, setLiveData] = useState({
-    speed: 0,
-    distance: 0,
-    kicks: 0,
-    duration: 0
-  });
-
-  // Mock goals data
-  const [goals, setGoals] = useState([
-    {
-      id: 1,
-      title: "Weekly Training",
-      target: playerData.weeklyGoal,
-      current: 4,
-      type: "sessions",
-      reward: "Training Badge"
-    },
-    {
-      id: 2,
-      title: "Speed Goal",
-      target: 30,
-      current: 28.5,
-      type: "speed",
-      reward: "Speed Demon Badge"
-    },
-    {
-      id: 3,
-      title: "Distance Challenge",
-      target: 50,
-      current: 32.8,
-      type: "distance",
-      reward: "Marathon Runner"
-    }
-  ]);
-
-  // Simulate live data updates when connected
-  useEffect(() => {
-    let interval;
-    if (isConnected && currentSession) {
-      interval = setInterval(() => {
-        setLiveData(prev => ({
-          speed: Math.random() * 25 + 5,
-          distance: prev.distance + (Math.random() * 0.05),
-          kicks: prev.kicks + (Math.random() > 0.7 ? 1 : 0),
-          duration: prev.duration + 1
-        }));
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isConnected, currentSession]);
-
-  // Listen for navigation events from dashboard
-  useEffect(() => {
-    const handleNavigateToAccount = () => setActiveTab('account');
-    const handleNavigateToGoals = () => setActiveTab('goals');
-    
-    window.addEventListener('navigate-to-account', handleNavigateToAccount);
-    window.addEventListener('navigate-to-goals', handleNavigateToGoals);
-    
-    return () => {
-      window.removeEventListener('navigate-to-account', handleNavigateToAccount);
-      window.removeEventListener('navigate-to-goals', handleNavigateToGoals);
-    };
-  }, []);
-
-  // Define handleStartTraining function
-  const handleStartTraining = () => {
-    // Navigate to dashboard and trigger training start
-    setActiveTab('dashboard');
-    // This would trigger the training flow in DashboardTab
-  };
-
-  // Removed splash screen as requested
-
-  if (showProfile) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
-          <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />
-        </div>
-        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      </div>
-    );
-  }
-
-  if (showGoalsRewards) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
-          <GoalsRewards goals={goals} setGoals={setGoals} />
-        </div>
-        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      </div>
-    );
-  }
-
-  // Handle training type screens
-  if (currentTrainingType) {
-    const handleBackToTraining = () => {
-      setCurrentTrainingType(null);
-      setActiveTab('training');
-    };
-
-    const trainingComponents = {
-      'free-play': <FreePlayTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
-      'skill-training': <SkillTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
-      'endurance': <EnduranceTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
-      'performance': <PerformanceTest onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />
-    };
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
-          {trainingComponents[currentTrainingType]}
-        </div>
-        <BottomNavigation 
-          activeTab={activeTab} 
-          onTabChange={(tab) => {
-            setCurrentTrainingType(null); // Reset training type when navigating away
-            setActiveTab(tab);
-          }} 
-        />
-      </div>
-    );
-  }
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'dashboard':
+      case "dashboard":
         return (
-          <DashboardTab
-            isConnected={isConnected}
-            setIsConnected={setIsConnected}
-            currentSession={currentSession}
-            setCurrentSession={setCurrentSession}
-            liveData={liveData}
-            setLiveData={setLiveData}
-            playerData={playerData}
-            onShowProfile={() => setShowProfile(true)}
-            goals={goals}
-            onShowGoals={() => setShowGoalsRewards(true)}
-          />
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <h1 className="text-3xl font-bold text-foreground">Soccer Performance Tracker</h1>
+              <p className="text-muted-foreground">Connect your tracker to start monitoring your performance</p>
+            </div>
+            
+            <Card className="border-2 border-dashed border-border bg-card/50 backdrop-blur-sm">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="flex items-center justify-center gap-2 text-lg sm:text-xl">
+                  <Bluetooth className="w-6 h-6 text-primary" />
+                  Connect Your Soccer Tracker
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button size="lg" className="w-full sm:w-auto h-14 text-lg font-bold bg-primary hover:bg-primary/90">
+                  <Bluetooth className="w-4 h-4 mr-2" />
+                  Scan for Tracker
+                </Button>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Make sure your Performance Soccer Tracker is within 10 meters and powered on
+                </p>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Activity className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-foreground">0</div>
+                  <div className="text-sm text-muted-foreground">Kicks</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-foreground">0 km/h</div>
+                  <div className="text-sm text-muted-foreground">Max Speed</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         );
-      case 'performance':
-        return <PerformanceTab liveData={liveData} currentSession={currentSession} />;
-      case 'training':
-        return <TrainingTab onStartTraining={handleStartTraining} isConnected={isConnected} onTrainingTypeSelect={setCurrentTrainingType} />;
-      case 'goals':
-        return <GoalsRewards goals={goals} setGoals={setGoals} />;
-      case 'account':
-        return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />;
       default:
-        return null;
+        return (
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+            </h2>
+            <p className="text-muted-foreground">This section is under development</p>
+          </div>
+        );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="px-4 py-6 max-w-sm mx-auto pb-32">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 pb-20">
         {renderTabContent()}
       </div>
-      
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
+        <div className="grid grid-cols-5 gap-1">
+          {[
+            { id: "dashboard", icon: Activity, label: "Dashboard" },
+            { id: "training", icon: Target, label: "Training" },
+            { id: "performance", icon: TrendingUp, label: "Performance" },
+            { id: "goals", icon: Target, label: "Goals" },
+            { id: "account", icon: User, label: "Account" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center py-2 px-1 transition-colors ${
+                activeTab === tab.id
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <tab.icon className="w-5 h-5 mb-1" />
+              <span className="text-xs font-medium">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
