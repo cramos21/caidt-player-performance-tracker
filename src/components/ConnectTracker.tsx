@@ -22,13 +22,29 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
       console.log('Starting scan...');
       const devices = await scanForDevices();
       console.log('Scan completed, devices found:', devices.length);
-      setAvailableDevices(devices);
+      
+      // Use the same filtering logic as the debug scanner
+      const trackers = devices.filter(device => {
+        const name = device.name?.toLowerCase() || '';
+        return name.includes('arduino') || 
+               name.includes('performance') || 
+               name.includes('player') ||
+               name.includes('tracker');
+      });
+      
+      console.log('Filtered trackers:', trackers.length);
+      trackers.forEach(tracker => {
+        console.log(`Found tracker: ${tracker.name} (${tracker.deviceId.slice(-6)})`);
+      });
+      
+      setAvailableDevices(trackers); // Show only trackers, not all devices
       setShowDevices(true);
       
-      if (devices.length === 0) {
-        toast.error('No soccer trackers found. Make sure your device is on and nearby.');
+      if (trackers.length === 0) {
+        toast.error('No soccer trackers found. Make sure your Arduino is on and nearby.');
       } else {
-        console.log('Devices:', devices.map(d => ({ name: d.name, id: d.deviceId })));
+        console.log('Trackers:', trackers.map(d => ({ name: d.name, id: d.deviceId })));
+        toast.success(`Found ${trackers.length} soccer tracker(s)!`);
       }
     } catch (error) {
       console.error('Scan failed:', error);
