@@ -19,61 +19,111 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
 
   const handleScan = async () => {
     try {
-      console.log('Starting scan...');
+      console.log('🚀 Starting comprehensive scan...');
       setScanInProgress(true);
       setAvailableDevices([]);
       setShowDevices(true); // Show device list immediately with loading state
       
-      // Use the EXACT same logic as the debug scanner that works
+      // Initialize Bluetooth first
       console.log('🔧 Initializing Bluetooth...');
-      await BleClient.initialize();
-      console.log('✅ BLE Client initialized');
-
-      console.log('🔍 Starting BLE scan...');
-      await BleClient.requestLEScan({
-        allowDuplicates: false
-      }, (result) => {
-        console.log(`📱 Found: ${result.device.name || 'Unknown'} (${result.device.deviceId.slice(0, 12)}...)`);
-        setAvailableDevices(prev => {
-          const exists = prev.find(d => d.deviceId === result.device.deviceId);
-          if (!exists) {
-            return [...prev, result.device];
-          }
-          return prev;
-        });
-      });
-
-      // Scan for 6 seconds (same as debug)
-      console.log('⏳ Scanning for 6 seconds...');
-      await new Promise(resolve => setTimeout(resolve, 6000));
-      
-      console.log('🛑 Stopping scan and getting results...');
-      const allDevices = await BleClient.getDevices([]);
-      await BleClient.stopLEScan();
-      
-      console.log(`📋 Total devices found: ${allDevices.length}`);
-      
-      // Always show all devices found
-      setAvailableDevices(allDevices);
-      setScanInProgress(false);
-      
-      // Filter for soccer trackers for the toast message
-      const trackers = allDevices.filter(device => {
-        const name = device.name?.toLowerCase() || '';
-        return name.includes('soccer') || 
-               name.includes('tracker') || 
-               (name.includes('player') && name.includes('performance')) ||
-               name.includes('arduino');
-      });
-      
-      if (trackers.length === 0) {
-        toast.info(`Found ${allDevices.length} devices - look for your Arduino or tracker device.`);
-      } else {
-        toast.success(`Found ${trackers.length} potential soccer tracker(s) and ${allDevices.length - trackers.length} other devices!`);
+      try {
+        await BleClient.initialize();
+        console.log('✅ BLE Client initialized successfully');
+      } catch (initError) {
+        console.log('⚠️ BLE Client might already be initialized:', initError);
       }
+
+      // Start scanning with comprehensive approach
+      console.log('🔍 Starting BLE scan with multiple strategies...');
+      
+      // Strategy 1: Standard scan
+      try {
+        await BleClient.requestLEScan({
+          allowDuplicates: false,
+          scanMode: 1, // Low latency
+        }, (result) => {
+          console.log(`📱 Device found: ${result.device.name || 'Unknown'} - ID: ${result.device.deviceId.slice(-8)}`);
+          setAvailableDevices(prev => {
+            const exists = prev.find(d => d.deviceId === result.device.deviceId);
+            if (!exists) {
+              console.log(`➕ Adding new device: ${result.device.name || 'Unknown'}`);
+              return [...prev, result.device];
+            }
+            return prev;
+          });
+        });
+        console.log('✅ Standard scan started');
+      } catch (scanError) {
+        console.error('❌ Standard scan failed:', scanError);
+        
+        // Strategy 2: Fallback scan
+        console.log('🔄 Trying fallback scan...');
+        try {
+          await BleClient.requestLEScan({}, (result) => {
+            console.log(`📱 Fallback scan found: ${result.device.name || 'Unknown'}`);
+            setAvailableDevices(prev => {
+              const exists = prev.find(d => d.deviceId === result.device.deviceId);
+              if (!exists) {
+                return [...prev, result.device];
+              }
+              return prev;
+            });
+          });
+          console.log('✅ Fallback scan started');
+        } catch (fallbackError) {
+          console.error('❌ Fallback scan also failed:', fallbackError);
+          throw fallbackError;
+        }
+      }
+
+      // Scan for longer duration to find more devices
+      console.log('⏳ Scanning for 8 seconds for better discovery...');
+      await new Promise(resolve => setTimeout(resolve, 8000));
+      
+      console.log('🛑 Stopping scan and collecting results...');
+      
+      // Get all discovered devices
+      try {
+        const allDevices = await BleClient.getDevices([]);
+        await BleClient.stopLEScan();
+        
+        console.log(`📋 Total devices discovered: ${allDevices.length}`);
+        allDevices.forEach((device, index) => {
+          console.log(`Device ${index + 1}: "${device.name || 'Unknown'}" - ID: ${device.deviceId.slice(-6)} - MAC: ${device.deviceId}`);
+        });
+        
+        // Always show all devices found
+        setAvailableDevices(allDevices);
+        setScanInProgress(false);
+        
+        // Categorize devices for user guidance
+        const potentialTrackers = allDevices.filter(device => {
+          const name = device.name?.toLowerCase() || '';
+          return name.includes('soccer') || 
+                 name.includes('tracker') || 
+                 name.includes('arduino') ||
+                 name.includes('player') ||
+                 name.includes('performance') ||
+                 name.includes('nano');
+        });
+        
+        if (allDevices.length === 0) {
+          toast.error('No Bluetooth devices found. Make sure your Arduino is on and nearby.');
+        } else if (potentialTrackers.length === 0) {
+          toast.info(`Found ${allDevices.length} devices, but none appear to be soccer trackers. Look for Arduino or similar devices.`);
+        } else {
+          toast.success(`Found ${potentialTrackers.length} potential soccer tracker(s) out of ${allDevices.length} total devices!`);
+        }
+        
+      } catch (getDevicesError) {
+        console.error('❌ Failed to get devices:', getDevicesError);
+        setScanInProgress(false);
+        toast.error('Failed to retrieve device list');
+      }
+      
     } catch (error) {
-      console.error('Scan failed:', error);
-      toast.error('Scan failed: ' + error);
+      console.error('❌ Comprehensive scan failed:', error);
+      toast.error('Bluetooth scan failed. Try restarting the app and ensure Bluetooth permissions are granted.');
       setScanInProgress(false);
       setShowDevices(true);
     }
@@ -195,8 +245,11 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
                   const isLikelySoccerTracker = name.toLowerCase().includes('soccer') || 
                                               name.toLowerCase().includes('player') ||
                                               name.toLowerCase().includes('performance') ||
-                                              name.toLowerCase().includes('arduino') ||  // Key fix!
-                                              name.toLowerCase().includes('tracker');
+                                              name.toLowerCase().includes('arduino') ||
+                                              name.toLowerCase().includes('tracker') ||
+                                              name.toLowerCase().includes('nano') ||
+                                              name.toLowerCase().includes('esp32') ||
+                                              name.toLowerCase().includes('ble');
                   
                   return (
                     <div key={device.deviceId} className={`flex items-center justify-between p-4 border rounded-lg ${
