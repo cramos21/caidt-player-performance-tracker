@@ -131,11 +131,16 @@ export const useBluetooth = () => {
 
       // Get services to verify connection
       const services = await BleClient.getServices(device.deviceId);
+      console.log('Available services:', services.map(s => s.uuid));
+      
       const hasTrackerService = services.some(
-        service => service.uuid === SOCCER_TRACKER_SERVICE_UUID
+        service => service.uuid.toLowerCase() === SOCCER_TRACKER_SERVICE_UUID.toLowerCase()
       );
 
       if (!hasTrackerService) {
+        console.log('Expected service UUID:', SOCCER_TRACKER_SERVICE_UUID);
+        console.log('Available service UUIDs:', services.map(s => s.uuid));
+        toast.error(`Device does not have the required soccer tracker service. Found services: ${services.map(s => s.uuid).join(', ')}`);
         throw new Error('Device does not have the required soccer tracker service');
       }
 
