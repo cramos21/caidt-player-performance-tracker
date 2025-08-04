@@ -48,7 +48,7 @@ const PerformanceChart = () => {
           <TabsContent value="weekly" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={weeklyData}>
+                <LineChart data={weeklyData} margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
                   <YAxis />
@@ -77,7 +77,7 @@ const PerformanceChart = () => {
           <TabsContent value="session" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sessionData}>
+                <LineChart data={sessionData} margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="minute" label={{ value: 'Minutes', position: 'insideBottom', offset: -10 }} />
                   <YAxis />
@@ -98,7 +98,7 @@ const PerformanceChart = () => {
           <TabsContent value="kicks" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData}>
+                <BarChart data={weeklyData} margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
                   <YAxis />
