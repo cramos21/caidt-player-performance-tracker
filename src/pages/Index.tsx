@@ -91,10 +91,7 @@ const Index = () => {
     // This would trigger the training flow in DashboardTab
   };
 
-  // Show splash screen first
-  if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
-  }
+  // Removed splash screen as requested
 
   if (showProfile) {
     return (
@@ -126,10 +123,10 @@ const Index = () => {
     };
 
     const trainingComponents = {
-      'free-play': <FreePlayTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} />,
-      'skill-training': <SkillTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} />,
-      'endurance': <EnduranceTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} />,
-      'performance': <PerformanceTest onBack={handleBackToTraining} onStartTraining={handleStartTraining} />
+      'free-play': <FreePlayTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
+      'skill-training': <SkillTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
+      'endurance': <EnduranceTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
+      'performance': <PerformanceTest onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />
     };
 
     return (

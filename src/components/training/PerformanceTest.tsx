@@ -5,9 +5,10 @@ import { ArrowLeft, Trophy, Zap, Target, Clock } from "lucide-react";
 interface PerformanceTestProps {
   onBack: () => void;
   onStartTraining: () => void;
+  isConnected?: boolean;
 }
 
-const PerformanceTest = ({ onBack, onStartTraining }: PerformanceTestProps) => {
+const PerformanceTest = ({ onBack, onStartTraining, isConnected = false }: PerformanceTestProps) => {
   return (
     <div className="space-y-6 pb-24">
       {/* Header */}
@@ -68,9 +69,10 @@ const PerformanceTest = ({ onBack, onStartTraining }: PerformanceTestProps) => {
             onClick={onStartTraining}
             size="lg" 
             className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
+            disabled={!isConnected}
           >
             <Trophy className="w-5 h-5 mr-3" />
-            Start Performance Test
+            {isConnected ? 'Start Performance Test' : 'Connect Tracker First'}
           </Button>
         </CardContent>
       </Card>

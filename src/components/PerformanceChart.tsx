@@ -31,17 +31,19 @@ const PerformanceChart = () => {
 
   return (
     <Card className="col-span-full">
-      <CardHeader>
-        <CardTitle>Performance Analytics</CardTitle>
-        <CardDescription>Track your progress over time</CardDescription>
+      <CardHeader className="text-left">
+        <CardTitle className="text-left">Performance Analytics</CardTitle>
+        <CardDescription className="text-left">Track your progress over time</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="weekly" className="space-y-4">
-          <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-full">
-            <TabsTrigger value="weekly" className="whitespace-nowrap flex-1">Weekly Overview</TabsTrigger>
-            <TabsTrigger value="session" className="whitespace-nowrap flex-1">Session Analysis</TabsTrigger>
-            <TabsTrigger value="kicks" className="whitespace-nowrap flex-1">Kick Performance</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground min-w-max">
+              <TabsTrigger value="weekly" className="whitespace-nowrap px-4">Weekly Overview</TabsTrigger>
+              <TabsTrigger value="session" className="whitespace-nowrap px-4">Session Analysis</TabsTrigger>
+              <TabsTrigger value="kicks" className="whitespace-nowrap px-4">Kick Performance</TabsTrigger>
+            </TabsList>
+          </div>
           
           <TabsContent value="weekly" className="space-y-4">
             <div className="h-80">

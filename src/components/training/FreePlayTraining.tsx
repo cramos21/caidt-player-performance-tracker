@@ -5,9 +5,10 @@ import { ArrowLeft, Play, Clock, Target } from "lucide-react";
 interface FreePlayTrainingProps {
   onBack: () => void;
   onStartTraining: () => void;
+  isConnected?: boolean;
 }
 
-const FreePlayTraining = ({ onBack, onStartTraining }: FreePlayTrainingProps) => {
+const FreePlayTraining = ({ onBack, onStartTraining, isConnected = false }: FreePlayTrainingProps) => {
   return (
     <div className="space-y-6 pb-24">
       {/* Header */}
@@ -62,9 +63,10 @@ const FreePlayTraining = ({ onBack, onStartTraining }: FreePlayTrainingProps) =>
             onClick={onStartTraining}
             size="lg" 
             className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
+            disabled={!isConnected}
           >
             <Play className="w-5 h-5 mr-3" />
-            Start Free Play
+            {isConnected ? 'Start Free Play' : 'Connect Tracker First'}
           </Button>
         </CardContent>
       </Card>

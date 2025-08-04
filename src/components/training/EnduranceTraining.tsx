@@ -5,9 +5,10 @@ import { ArrowLeft, Timer, MapPin, TrendingUp } from "lucide-react";
 interface EnduranceTrainingProps {
   onBack: () => void;
   onStartTraining: () => void;
+  isConnected?: boolean;
 }
 
-const EnduranceTraining = ({ onBack, onStartTraining }: EnduranceTrainingProps) => {
+const EnduranceTraining = ({ onBack, onStartTraining, isConnected = false }: EnduranceTrainingProps) => {
   return (
     <div className="space-y-6 pb-24">
       {/* Header */}
@@ -62,9 +63,10 @@ const EnduranceTraining = ({ onBack, onStartTraining }: EnduranceTrainingProps) 
             onClick={onStartTraining}
             size="lg" 
             className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
+            disabled={!isConnected}
           >
             <Timer className="w-5 h-5 mr-3" />
-            Start Endurance Run
+            {isConnected ? 'Start Endurance Run' : 'Connect Tracker First'}
           </Button>
         </CardContent>
       </Card>
