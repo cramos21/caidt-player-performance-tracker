@@ -36,12 +36,19 @@ export const useBluetooth = () => {
         return false;
       }
 
-      console.log('Initializing Bluetooth...');
-      await BleClient.initialize();
-      console.log('Bluetooth initialized successfully');
+      console.log('🔧 Initializing Bluetooth...');
+      
+      // Add timeout to prevent hanging
+      const initPromise = BleClient.initialize();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Bluetooth initialization timeout')), 5000)
+      );
+      
+      await Promise.race([initPromise, timeoutPromise]);
+      console.log('✅ Bluetooth initialized successfully');
       return true;
     } catch (error) {
-      console.error('Failed to initialize Bluetooth:', error);
+      console.error('❌ Failed to initialize Bluetooth:', error);
       toast.error('Failed to initialize Bluetooth: ' + error);
       return false;
     }
