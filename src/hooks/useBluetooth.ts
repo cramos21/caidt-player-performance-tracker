@@ -3,12 +3,12 @@ import { BleClient, BleDevice, numbersToDataView, dataViewToNumbers } from '@cap
 import { Capacitor } from '@capacitor/core';
 import { toast } from 'sonner';
 
-// Arduino Nano service and characteristic UUIDs
+// Arduino Nano service and characteristic UUIDs (matching your Arduino code)
 const SOCCER_TRACKER_SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
-const KICKS_CHARACTERISTIC_UUID = '87654321-4321-4321-4321-cba987654321';
-const DISTANCE_CHARACTERISTIC_UUID = '11111111-2222-3333-4444-555555555555';
-const MAX_SPEED_CHARACTERISTIC_UUID = '66666666-7777-8888-9999-aaaaaaaaaaaa';
-const TIME_CHARACTERISTIC_UUID = 'bbbbbbbb-cccc-dddd-eeee-ffffffffffff';
+const KICKS_CHARACTERISTIC_UUID = '11111111-1111-1111-1111-111111111111';
+const DISTANCE_CHARACTERISTIC_UUID = '22222222-2222-2222-2222-222222222222';
+const MAX_SPEED_CHARACTERISTIC_UUID = '33333333-3333-3333-3333-333333333333';
+const TIME_CHARACTERISTIC_UUID = '44444444-4444-4444-4444-444444444444';
 
 export interface SoccerTrackerData {
   speed: number; // km/h
