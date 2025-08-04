@@ -48,10 +48,10 @@ const PerformanceChart = () => {
           <TabsContent value="weekly" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={weeklyData} margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
+                <LineChart data={weeklyData} margin={{ left: -10, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
-                  <YAxis />
+                  <YAxis width={30} />
                   <Tooltip />
                   <Line 
                     type="monotone" 
@@ -77,10 +77,10 @@ const PerformanceChart = () => {
           <TabsContent value="session" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sessionData} margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
+                <LineChart data={sessionData} margin={{ left: -10, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="minute" label={{ value: 'Minutes', position: 'insideBottom', offset: -10 }} />
-                  <YAxis />
+                  <YAxis width={30} />
                   <Tooltip />
                   <Line 
                     type="monotone" 
@@ -98,10 +98,10 @@ const PerformanceChart = () => {
           <TabsContent value="kicks" className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData} margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
+                <BarChart data={weeklyData} margin={{ left: -10, right: 20, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
-                  <YAxis />
+                  <YAxis width={30} />
                   <Tooltip />
                   <Bar 
                     dataKey="kicks" 
