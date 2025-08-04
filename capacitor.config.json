@@ -15,5 +15,20 @@
         "noDeviceFound": "No devices found"
       }
     }
+  },
+  "ios": {
+    "permissions": {
+      "BluetoothPeripheral": "Uses Bluetooth to connect to soccer tracker device",
+      "BluetoothAlways": "Uses Bluetooth to connect to soccer tracker device",
+      "LocationWhenInUse": "Location permission is required for Bluetooth scanning"
+    }
+  },
+  "android": {
+    "permissions": [
+      "android.permission.BLUETOOTH",
+      "android.permission.BLUETOOTH_ADMIN", 
+      "android.permission.ACCESS_COARSE_LOCATION",
+      "android.permission.ACCESS_FINE_LOCATION"
+    ]
   }
 }

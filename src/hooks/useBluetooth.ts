@@ -32,15 +32,17 @@ export const useBluetooth = () => {
   const initializeBluetooth = useCallback(async () => {
     try {
       if (!Capacitor.isNativePlatform()) {
-        toast.error('Bluetooth is only available on mobile devices');
+        toast.error('Bluetooth scanning requires a native app build. Please build and install the native iOS app.');
         return false;
       }
 
+      console.log('Initializing Bluetooth...');
       await BleClient.initialize();
+      console.log('Bluetooth initialized successfully');
       return true;
     } catch (error) {
       console.error('Failed to initialize Bluetooth:', error);
-      toast.error('Failed to initialize Bluetooth');
+      toast.error('Failed to initialize Bluetooth: ' + error);
       return false;
     }
   }, []);
