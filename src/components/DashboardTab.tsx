@@ -208,7 +208,7 @@ const DashboardTab = ({
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2 text-xl">
               <Trophy className="w-4 h-4 text-primary" />
               Today's Progress
             </CardTitle>
@@ -241,7 +241,7 @@ const DashboardTab = ({
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2 text-xl">
               <Target className="w-4 h-4 text-primary" />
               Goals & Rewards
             </CardTitle>
