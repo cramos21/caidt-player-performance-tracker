@@ -70,43 +70,43 @@ const SessionSummary = ({ sessionData, onViewPerformance, onNewSession, onBackTo
           <h2 className="text-lg font-semibold text-foreground">Session Stats</h2>
           
           <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-card/80 backdrop-blur-sm">
+            <Card className="bg-card/80 backdrop-blur-sm hover:bg-card hover:shadow-lg hover:shadow-blue-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
               <CardContent className="pt-4 text-center">
-                <Timer className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                <div className="text-xl font-bold text-foreground">{formatTime(sessionData.duration)}</div>
-                <div className="text-xs text-muted-foreground">Duration</div>
+                <Timer className="w-6 h-6 text-blue-500 mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
+                <div className="text-xl font-bold text-foreground group-hover:text-blue-400 transition-colors duration-300">{formatTime(sessionData.duration)}</div>
+                <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Duration</div>
               </CardContent>
             </Card>
 
-            <Card className="bg-card/80 backdrop-blur-sm">
+            <Card className="bg-card/80 backdrop-blur-sm hover:bg-card hover:shadow-lg hover:shadow-green-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
               <CardContent className="pt-4 text-center">
-                <MapPin className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <div className="text-xl font-bold text-foreground">{sessionData.distance.toFixed(2)}</div>
-                <div className="text-xs text-muted-foreground">km</div>
+                <MapPin className="w-6 h-6 text-green-500 mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
+                <div className="text-xl font-bold text-foreground group-hover:text-green-400 transition-colors duration-300">{sessionData.distance.toFixed(2)}</div>
+                <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">km</div>
               </CardContent>
             </Card>
 
-            <Card className="bg-card/80 backdrop-blur-sm">
+            <Card className="bg-card/80 backdrop-blur-sm hover:bg-card hover:shadow-lg hover:shadow-orange-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
               <CardContent className="pt-4 text-center">
-                <Zap className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                <div className="text-xl font-bold text-foreground">{sessionData.maxSpeed.toFixed(1)}</div>
-                <div className="text-xs text-muted-foreground">km/h max</div>
+                <Zap className="w-6 h-6 text-orange-500 mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
+                <div className="text-xl font-bold text-foreground group-hover:text-orange-400 transition-colors duration-300">{sessionData.maxSpeed.toFixed(1)}</div>
+                <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">km/h max</div>
               </CardContent>
             </Card>
 
-            <Card className="bg-card/80 backdrop-blur-sm">
+            <Card className="bg-card/80 backdrop-blur-sm hover:bg-card hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
               <CardContent className="pt-4 text-center">
-                <Target className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                <div className="text-xl font-bold text-foreground">{sessionData.kicks}</div>
-                <div className="text-xs text-muted-foreground">Kicks</div>
+                <Target className="w-6 h-6 text-purple-500 mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
+                <div className="text-xl font-bold text-foreground group-hover:text-purple-400 transition-colors duration-300">{sessionData.kicks}</div>
+                <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Kicks</div>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="bg-card/80 backdrop-blur-sm">
+          <Card className="bg-card/80 backdrop-blur-sm hover:bg-card hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
             <CardContent className="pt-4 text-center">
-              <div className="text-2xl font-bold text-foreground">{sessionData.averageSpeed.toFixed(1)} km/h</div>
-              <div className="text-sm text-muted-foreground">Average Speed</div>
+              <div className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">{sessionData.averageSpeed.toFixed(1)} km/h</div>
+              <div className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">Average Speed</div>
             </CardContent>
           </Card>
         </div>

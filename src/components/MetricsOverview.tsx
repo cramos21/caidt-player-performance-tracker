@@ -74,7 +74,7 @@ const MetricsOverview = ({ liveData }: MetricsOverviewProps) => {
   return (
     <div className="grid grid-cols-2 gap-4">
       {metrics.map((metric, index) => (
-        <Card key={index} className={`relative overflow-hidden border ${metric.borderColor} bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all duration-300`}>
+        <Card key={index} className={`relative overflow-hidden border ${metric.borderColor} bg-card/50 backdrop-blur-sm hover:bg-card/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer group`}>
           <CardHeader className={`${metric.bgColor} pb-3`}>
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -84,10 +84,10 @@ const MetricsOverview = ({ liveData }: MetricsOverviewProps) => {
             </div>
           </CardHeader>
           <CardContent className="pt-4 space-y-3">
-            <div className="text-xl sm:text-2xl font-bold text-foreground">
+            <div className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
               {metric.value}
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">
               {metric.description}
             </div>
             <Progress value={metric.progress} className="h-2" />

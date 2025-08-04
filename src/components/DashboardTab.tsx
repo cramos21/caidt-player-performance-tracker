@@ -220,17 +220,17 @@ const DashboardTab = ({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-3">
-            <div className="text-center p-3 rounded-lg bg-primary/10">
-              <div className="text-lg font-bold text-foreground">{todayStats.sessionsCompleted}</div>
-              <div className="text-xs text-muted-foreground">Sessions</div>
+            <div className="text-center p-3 rounded-lg bg-primary/10 hover:bg-primary/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+              <div className="text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-300">{todayStats.sessionsCompleted}</div>
+              <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Sessions</div>
             </div>
-            <div className="text-center p-3 rounded-lg bg-blue-500/10">
-              <div className="text-lg font-bold text-blue-400">{todayStats.totalDistance.toFixed(1)}km</div>
-              <div className="text-xs text-muted-foreground">Distance</div>
+            <div className="text-center p-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+              <div className="text-lg font-bold text-blue-400 group-hover:text-blue-300 transition-colors duration-300">{todayStats.totalDistance.toFixed(1)}km</div>
+              <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Distance</div>
             </div>
-            <div className="text-center p-3 rounded-lg bg-green-400/10">
-              <div className="text-lg font-bold text-green-400">{todayStats.totalKicks}</div>
-              <div className="text-xs text-muted-foreground">Kicks</div>
+            <div className="text-center p-3 rounded-lg bg-green-400/10 hover:bg-green-400/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+              <div className="text-lg font-bold text-green-400 group-hover:text-green-300 transition-colors duration-300">{todayStats.totalKicks}</div>
+              <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Kicks</div>
             </div>
           </div>
         </CardContent>
