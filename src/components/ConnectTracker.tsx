@@ -30,12 +30,28 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
         return;
       }
       
+      // Check if running in iOS Simulator
+      if (Capacitor.getPlatform() === 'ios') {
+        console.log('📱 iOS detected - checking if physical device...');
+        
+        // Try to detect if we're in simulator
+        try {
+          const userAgent = navigator.userAgent;
+          if (userAgent.includes('iPhone OS') && userAgent.includes('OS 1')) {
+            console.log('⚠️ Running in iOS Simulator - Bluetooth LE not supported');
+            toast.error('Bluetooth LE is not supported in iOS Simulator. Please test on a physical iOS device.');
+            return;
+          }
+        } catch (e) {
+          console.log('Unable to detect simulator status');
+        }
+      }
+      
       // Use the proper initialization from useBluetooth hook
       console.log('🔧 Test 1: Initialize BLE using hook method...');
       
       // Initialize with platform-specific logic like the hook does
       if (Capacitor.getPlatform() === 'ios') {
-        console.log('📱 iOS detected - requesting explicit permissions...');
         await BleClient.initialize({
           androidNeverForLocation: false
         });
@@ -65,7 +81,12 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
       console.error('Error code:', error.code);
       console.error('Full error:', error);
       
-      toast.error(`BLE test failed: ${error.message || 'Unknown error'}`);
+      // Check for specific "not implemented" error
+      if (error.message && error.message.includes('not implemented')) {
+        toast.error('⚠️ You are running in iOS Simulator. Bluetooth LE requires a physical iOS device to test.');
+      } else {
+        toast.error(`BLE test failed: ${error.message || 'Unknown error'}`);
+      }
     }
   };
 
