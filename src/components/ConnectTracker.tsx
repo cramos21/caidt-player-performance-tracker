@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bluetooth, Smartphone, Wifi, CheckCircle, Search } from "lucide-react";
 import { useBluetooth } from "@/hooks/useBluetooth";
 import { useState } from "react";
-import { BleDevice } from '@capacitor-community/bluetooth-le';
+import { BleDevice, BleClient } from '@capacitor-community/bluetooth-le';
 import { toast } from 'sonner';
 
 interface ConnectTrackerProps {
@@ -20,11 +20,39 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   const handleScan = async () => {
     try {
       console.log('Starting scan...');
-      const devices = await scanForDevices();
-      console.log('Scan completed, devices found:', devices.length);
+      setAvailableDevices([]);
       
-      // Use the same filtering logic as the debug scanner
-      const trackers = devices.filter(device => {
+      // Use the EXACT same logic as the debug scanner that works
+      console.log('🔧 Initializing Bluetooth...');
+      await BleClient.initialize();
+      console.log('✅ BLE Client initialized');
+
+      console.log('🔍 Starting BLE scan...');
+      await BleClient.requestLEScan({
+        allowDuplicates: false
+      }, (result) => {
+        console.log(`📱 Found: ${result.device.name || 'Unknown'} (${result.device.deviceId.slice(0, 12)}...)`);
+        setAvailableDevices(prev => {
+          const exists = prev.find(d => d.deviceId === result.device.deviceId);
+          if (!exists) {
+            return [...prev, result.device];
+          }
+          return prev;
+        });
+      });
+
+      // Scan for 6 seconds (same as debug)
+      console.log('⏳ Scanning for 6 seconds...');
+      await new Promise(resolve => setTimeout(resolve, 6000));
+      
+      console.log('🛑 Stopping scan and getting results...');
+      const allDevices = await BleClient.getDevices([]);
+      await BleClient.stopLEScan();
+      
+      console.log(`📋 Total devices found: ${allDevices.length}`);
+      
+      // Filter for Arduino/tracker devices
+      const trackers = allDevices.filter(device => {
         const name = device.name?.toLowerCase() || '';
         return name.includes('arduino') || 
                name.includes('performance') || 
@@ -33,22 +61,18 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
       });
       
       console.log('Filtered trackers:', trackers.length);
-      trackers.forEach(tracker => {
-        console.log(`Found tracker: ${tracker.name} (${tracker.deviceId.slice(-6)})`);
-      });
-      
-      setAvailableDevices(trackers); // Show only trackers, not all devices
+      setAvailableDevices(trackers);
       setShowDevices(true);
       
       if (trackers.length === 0) {
         toast.error('No soccer trackers found. Make sure your Arduino is on and nearby.');
       } else {
-        console.log('Trackers:', trackers.map(d => ({ name: d.name, id: d.deviceId })));
         toast.success(`Found ${trackers.length} soccer tracker(s)!`);
       }
     } catch (error) {
       console.error('Scan failed:', error);
-      setShowDevices(true); // Show devices section even if scan failed so user can try again
+      toast.error('Scan failed: ' + error);
+      setShowDevices(true);
     }
   };
 
