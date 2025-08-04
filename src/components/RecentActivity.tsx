@@ -66,16 +66,16 @@ const RecentActivity = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {recentSessions.map((session) => (
-            <div key={session.id} className="border border-primary/20 rounded-lg p-4 hover:bg-muted/20 transition-colors cursor-pointer bg-card/50 backdrop-blur-sm">
+            <div key={session.id} className="border border-primary/20 rounded-lg p-4 hover:bg-card hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer bg-card/50 backdrop-blur-sm group">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">{session.date}</span>
+                    <Clock className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-300" />
+                    <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">{session.date}</span>
                     {getPerformanceBadge(session.performance)}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <MapPin className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                    <MapPin className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
                     {session.location}
                   </div>
                 </div>
@@ -83,28 +83,28 @@ const RecentActivity = () => {
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-blue-600">{session.duration}</div>
-                  <div className="text-xs text-gray-500">Duration</div>
+                <div className="text-center hover:scale-105 transition-transform duration-300">
+                  <div className="text-lg font-semibold text-blue-600 group-hover:text-blue-400 transition-colors duration-300">{session.duration}</div>
+                  <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Duration</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-green-600">{session.maxSpeed}</div>
-                  <div className="text-xs text-gray-500">Max Speed</div>
+                <div className="text-center hover:scale-105 transition-transform duration-300">
+                  <div className="text-lg font-semibold text-green-600 group-hover:text-green-400 transition-colors duration-300">{session.maxSpeed}</div>
+                  <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Max Speed</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-purple-600">{session.distance}</div>
-                  <div className="text-xs text-gray-500">Distance</div>
+                <div className="text-center hover:scale-105 transition-transform duration-300">
+                  <div className="text-lg font-semibold text-purple-600 group-hover:text-purple-400 transition-colors duration-300">{session.distance}</div>
+                  <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Distance</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-orange-600">{session.kicks}</div>
-                  <div className="text-xs text-gray-500">Kicks</div>
+                <div className="text-center hover:scale-105 transition-transform duration-300">
+                  <div className="text-lg font-semibold text-orange-600 group-hover:text-orange-400 transition-colors duration-300">{session.kicks}</div>
+                  <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Kicks</div>
                 </div>
               </div>
 
               {session.highlights.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {session.highlights.map((highlight, index) => (
-                    <span key={index} className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                    <span key={index} className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full group-hover:bg-yellow-200 group-hover:scale-105 transition-all duration-300">
                       ⭐ {highlight}
                     </span>
                   ))}
