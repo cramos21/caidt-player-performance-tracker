@@ -45,10 +45,15 @@ export const useBluetooth = () => {
   }, []);
 
   const scanForDevices = useCallback(async (): Promise<BleDevice[]> => {
+    console.log('🔍 Starting Bluetooth scan...');
     try {
       setIsScanning(true);
+      console.log('📱 Checking platform and initializing...');
       const initialized = await initializeBluetooth();
-      if (!initialized) return [];
+      if (!initialized) {
+        console.log('❌ Bluetooth initialization failed');
+        return [];
+      }
 
       // Scan for all BLE devices (don't filter by service during scan)
       await BleClient.requestLEScan(
