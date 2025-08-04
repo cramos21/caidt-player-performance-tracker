@@ -83,7 +83,14 @@ export const useBluetooth = () => {
       setIsScanning(true);
       setDebugInfo([]); // Clear previous debug info
       
-      addDebug('📱 Skipping initialization, going straight to scan...');
+      // Auto-initialize if not already done
+      addDebug('🔧 Auto-initializing Bluetooth...');
+      try {
+        await BleClient.initialize();
+        addDebug('✅ BLE Client initialized');
+      } catch (initError) {
+        addDebug(`⚠️ Init failed (might already be initialized): ${initError}`);
+      }
       
       // Skip the problematic initialization and go straight to scanning
       try {
