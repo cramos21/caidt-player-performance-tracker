@@ -68,12 +68,21 @@ export const useBluetooth = () => {
       const allDevices = await BleClient.getDevices([]);
       await BleClient.stopLEScan();
       
-      // Filter devices by name (your Arduino advertises as "Player Performance Tracker")
+      console.log('All discovered devices:', allDevices.map(d => ({ name: d.name, id: d.deviceId })));
+      
+      // Filter devices by name (looking for Arduino-like names)
       const filteredDevices = allDevices.filter(device => 
-        device.name && device.name.includes('Player Performance Tracker')
+        device.name && (
+          device.name.includes('Player Performance Tracker') ||
+          device.name.includes('Arduino') ||
+          device.name.includes('ESP32') ||
+          device.name.includes('Nano') ||
+          device.name.toLowerCase().includes('soccer') ||
+          device.name.toLowerCase().includes('tracker')
+        )
       );
       
-      console.log('Found tracker devices:', filteredDevices);
+      console.log('Found potential tracker devices:', filteredDevices);
       return filteredDevices;
     } catch (error) {
       console.error('Scan failed:', error);
