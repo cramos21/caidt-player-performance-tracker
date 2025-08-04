@@ -236,40 +236,6 @@ const DashboardTab = ({
         </CardContent>
       </Card>
 
-      {/* Start Training Session - Only show when connected */}
-      {isConnected && (
-        <Card className="border-primary/40 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur-sm shadow-lg">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-primary/20 rounded-full">
-                <Activity className="w-8 h-8 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Ready to Train?</h3>
-                <p className="text-sm text-muted-foreground">Your tracker is connected and ready to capture your performance data</p>
-              </div>
-              <Button 
-                onClick={startCountdown}
-                size="lg" 
-                className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-lg"
-              >
-                <Zap className="w-5 h-5 mr-2" />
-                Start Training Session
-              </Button>
-              <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  <span>Tracker Connected</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                  <span>Real-time Data</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Goals Quick View */}
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
@@ -307,8 +273,42 @@ const DashboardTab = ({
         </CardContent>
       </Card>
 
-      {/* Connection Status - Show when not connected */}
-      {!isConnected && <ConnectTracker onConnect={handleTrackerConnect} />}
+      {/* Connection Status - Show ConnectTracker when not connected, Training Start when connected */}
+      {!isConnected ? (
+        <ConnectTracker onConnect={handleTrackerConnect} />
+      ) : (
+        <Card className="border-primary/40 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur-sm shadow-lg">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-primary/20 rounded-full">
+                <Activity className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-foreground mb-2">Start Live Training Session</h3>
+                <p className="text-sm text-muted-foreground">Your tracker is connected and ready to capture real-time performance data</p>
+              </div>
+              <Button 
+                onClick={startCountdown}
+                size="lg" 
+                className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-lg"
+              >
+                <Zap className="w-5 h-5 mr-2" />
+                Start Live Training
+              </Button>
+              <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span>Tracker Connected</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                  <span>Real-time Data Ready</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
