@@ -218,16 +218,23 @@ const BluetoothDebugger = () => {
       
       if (hasExpectedService) {
         addLog('🎯 Expected soccer tracker service found!');
-        toast.success('Soccer tracker service detected!');
+        toast.success('Soccer tracker connected! Go to Dashboard to use it.');
+        
+        // Notify the app that we're connected
+        // This will make the Dashboard show as connected
+        window.dispatchEvent(new CustomEvent('tracker-connected', { 
+          detail: { device, deviceId: device.deviceId }
+        }));
+        
       } else {
         addLog('⚠️ Expected service not found');
         addLog(`Expected: ${expectedService}`);
         addLog(`Available: ${services.map(s => s.uuid).join(', ')}`);
+        
+        // Still disconnect since it's not the right device
+        await BleClient.disconnect(device.deviceId);
+        addLog('🔌 Disconnected from non-tracker device');
       }
-
-      // Disconnect
-      await BleClient.disconnect(device.deviceId);
-      addLog('🔌 Disconnected from device');
 
     } catch (error) {
       addLog(`❌ Connection test failed: ${error}`);

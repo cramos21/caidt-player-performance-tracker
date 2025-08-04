@@ -12,6 +12,7 @@ import EnduranceTraining from "@/components/training/EnduranceTraining";
 import PerformanceTest from "@/components/training/PerformanceTest";
 import BluetoothDebugger from "@/components/BluetoothDebugger";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -89,13 +90,20 @@ const Index = () => {
   useEffect(() => {
     const handleNavigateToAccount = () => setActiveTab('account');
     const handleNavigateToGoals = () => setActiveTab('goals');
+    const handleTrackerConnected = (event: any) => {
+      console.log('Tracker connected from debug page:', event.detail);
+      setIsConnected(true);
+      toast.success('Arduino connected! You can now start tracking.');
+    };
     
     window.addEventListener('navigate-to-account', handleNavigateToAccount);
     window.addEventListener('navigate-to-goals', handleNavigateToGoals);
+    window.addEventListener('tracker-connected', handleTrackerConnected);
     
     return () => {
       window.removeEventListener('navigate-to-account', handleNavigateToAccount);
       window.removeEventListener('navigate-to-goals', handleNavigateToGoals);
+      window.removeEventListener('tracker-connected', handleTrackerConnected);
     };
   }, []);
 
