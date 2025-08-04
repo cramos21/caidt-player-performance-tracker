@@ -91,7 +91,7 @@ const GoalsRewards = ({ goals, setGoals }: GoalsRewardsProps) => {
   };
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-24 px-4">
       {/* Title */}
       <div className="pt-6">
         <h1 className="text-2xl font-bold text-foreground">Goals</h1>

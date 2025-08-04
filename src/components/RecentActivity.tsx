@@ -66,7 +66,7 @@ const RecentActivity = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {recentSessions.map((session) => (
-            <div key={session.id} className="border-2 border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+            <div key={session.id} className="border border-border/50 rounded-lg p-4 hover:bg-muted/20 transition-colors">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1">

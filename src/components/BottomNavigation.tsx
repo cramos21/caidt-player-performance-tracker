@@ -16,8 +16,8 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border/50 safe-area-inset">
-      <div className="flex items-center justify-around max-w-sm mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border/50 safe-area-inset pb-safe">
+      <div className="flex items-center justify-around max-w-sm mx-auto pt-2 pb-4">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -26,7 +26,7 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center py-3 px-4 touch-target transition-colors ${
+              className={`flex flex-col items-center py-3 px-2 touch-target transition-colors flex-1 ${
                 isActive 
                   ? 'text-primary' 
                   : 'text-muted-foreground hover:text-foreground'

@@ -4,9 +4,11 @@ import { Play, Target, Trophy, Timer, Activity } from "lucide-react";
 
 interface TrainingTabProps {
   onStartTraining: () => void;
+  isConnected: boolean;
+  onTrainingTypeSelect: (type: string) => void;
 }
 
-const TrainingTab = ({ onStartTraining }: TrainingTabProps) => {
+const TrainingTab = ({ onStartTraining, isConnected, onTrainingTypeSelect }: TrainingTabProps) => {
   const trainingTypes = [
     {
       id: 'free-play',
@@ -59,16 +61,27 @@ const TrainingTab = ({ onStartTraining }: TrainingTabProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground text-center">
-            Jump straight into training with your last session settings
+            {isConnected ? "Jump straight into training with your last session settings" : "Connect your tracker first to start training"}
           </p>
-          <Button 
-            onClick={onStartTraining}
-            size="lg" 
-            className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
-          >
-            <Play className="w-5 h-5 mr-3" />
-            Start Training Now
-          </Button>
+          {isConnected ? (
+            <Button 
+              onClick={onStartTraining}
+              size="lg" 
+              className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
+            >
+              <Play className="w-5 h-5 mr-3" />
+              Start Training Now
+            </Button>
+          ) : (
+            <Button 
+              size="lg" 
+              className="w-full h-14 text-lg font-bold bg-muted text-muted-foreground cursor-not-allowed"
+              disabled
+            >
+              <Play className="w-5 h-5 mr-3" />
+              Connect Tracker First
+            </Button>
+          )}
         </CardContent>
       </Card>
 
@@ -89,7 +102,12 @@ const TrainingTab = ({ onStartTraining }: TrainingTabProps) => {
                       <h4 className="font-medium text-foreground">{type.title}</h4>
                       <p className="text-sm text-muted-foreground">{type.description}</p>
                     </div>
-                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-primary hover:text-primary/80"
+                      onClick={() => onTrainingTypeSelect(type.id)}
+                    >
                       Select
                     </Button>
                   </div>

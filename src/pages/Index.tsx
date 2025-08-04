@@ -5,6 +5,11 @@ import BottomNavigation from "@/components/BottomNavigation";
 import DashboardTab from "@/components/DashboardTab";
 import PerformanceTab from "@/components/PerformanceTab";
 import TrainingTab from "@/components/TrainingTab";
+import SplashScreen from "@/components/SplashScreen";
+import FreePlayTraining from "@/components/training/FreePlayTraining";
+import SkillTraining from "@/components/training/SkillTraining";
+import EnduranceTraining from "@/components/training/EnduranceTraining";
+import PerformanceTest from "@/components/training/PerformanceTest";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Index = () => {
@@ -13,6 +18,8 @@ const Index = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [showGoalsRewards, setShowGoalsRewards] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showSplash, setShowSplash] = useState(true);
+  const [currentTrainingType, setCurrentTrainingType] = useState<string | null>(null);
   
   // Player data - would come from your backend
   const [playerData, setPlayerData] = useState({
@@ -77,19 +84,63 @@ const Index = () => {
     return () => clearInterval(interval);
   }, [isConnected, currentSession]);
 
-  if (showProfile) {
-    return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />;
-  }
-
-  if (showGoalsRewards) {
-    return <GoalsRewards goals={goals} setGoals={setGoals} />;
-  }
-
+  // Define handleStartTraining function
   const handleStartTraining = () => {
     // Navigate to dashboard and trigger training start
     setActiveTab('dashboard');
     // This would trigger the training flow in DashboardTab
   };
+
+  // Show splash screen first
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
+
+  if (showProfile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
+          <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />
+        </div>
+        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
+    );
+  }
+
+  if (showGoalsRewards) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
+          <GoalsRewards goals={goals} setGoals={setGoals} />
+        </div>
+        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
+    );
+  }
+
+  // Handle training type screens
+  if (currentTrainingType) {
+    const handleBackToTraining = () => {
+      setCurrentTrainingType(null);
+      setActiveTab('training');
+    };
+
+    const trainingComponents = {
+      'free-play': <FreePlayTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} />,
+      'skill-training': <SkillTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} />,
+      'endurance': <EnduranceTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} />,
+      'performance': <PerformanceTest onBack={handleBackToTraining} onStartTraining={handleStartTraining} />
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="px-4 py-6 max-w-sm mx-auto pb-32">
+          {trainingComponents[currentTrainingType]}
+        </div>
+        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
+    );
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -111,7 +162,7 @@ const Index = () => {
       case 'performance':
         return <PerformanceTab liveData={liveData} currentSession={currentSession} />;
       case 'training':
-        return <TrainingTab onStartTraining={handleStartTraining} />;
+        return <TrainingTab onStartTraining={handleStartTraining} isConnected={isConnected} onTrainingTypeSelect={setCurrentTrainingType} />;
       case 'goals':
         return <GoalsRewards goals={goals} setGoals={setGoals} />;
       case 'account':
