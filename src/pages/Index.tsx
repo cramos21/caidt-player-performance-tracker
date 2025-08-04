@@ -148,7 +148,13 @@ const Index = () => {
         <div className="px-4 py-6 max-w-sm mx-auto pb-32">
           {trainingComponents[currentTrainingType]}
         </div>
-        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={(tab) => {
+            setCurrentTrainingType(null); // Reset training type when navigating away
+            setActiveTab(tab);
+          }} 
+        />
       </div>
     );
   }
