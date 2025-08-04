@@ -51,11 +51,14 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
       
       console.log(`📋 Total devices found: ${allDevices.length}`);
       
-      // Filter specifically for your soccer tracker (with "Player Performance" in name)
+      // Filter for soccer trackers - be more lenient with naming
       const trackers = allDevices.filter(device => {
         const name = device.name?.toLowerCase() || '';
-        // Only show the actual soccer tracker, not random Arduino devices
-        return name.includes('player') && name.includes('performance');
+        // Look for common soccer tracker names
+        return name.includes('soccer') || 
+               name.includes('tracker') || 
+               (name.includes('player') && name.includes('performance')) ||
+               name.includes('arduino');
       });
       
       console.log('Filtered trackers:', trackers.length);
@@ -63,7 +66,10 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
       setShowDevices(true);
       
       if (trackers.length === 0) {
-        toast.error('No soccer trackers found. Make sure your Arduino is on and nearby.');
+        // Show all devices if no trackers found
+        console.log('No trackers found, showing all devices');
+        setAvailableDevices(allDevices);
+        toast.info(`No trackers found. Showing all ${allDevices.length} devices - look for your Arduino.`);
       } else {
         toast.success(`Found ${trackers.length} soccer tracker(s)!`);
       }

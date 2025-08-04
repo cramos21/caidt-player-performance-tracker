@@ -109,9 +109,16 @@ const Index = () => {
 
   // Define handleStartTraining function
   const handleStartTraining = () => {
+    if (!isConnected) {
+      toast.error('Please connect your tracker first');
+      return;
+    }
     // Navigate to dashboard and trigger training start
     setActiveTab('dashboard');
-    // This would trigger the training flow in DashboardTab
+    // Trigger countdown after a short delay to ensure dashboard is rendered
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('start-training-countdown'));
+    }, 100);
   };
 
   // Removed splash screen as requested

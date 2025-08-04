@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ConnectTracker from "@/components/ConnectTracker";
 import CountdownScreen from "@/components/CountdownScreen";
 import LiveSessionTracking from "@/components/LiveSessionTracking";
-import PairingConfirmation from "@/components/PairingConfirmation";
+
 import LiveArduinoData from "@/components/LiveArduinoData";
 import { useBluetooth } from "@/hooks/useBluetooth";
 import { Activity, Zap, Target, Timer, Trophy, Camera } from "lucide-react";
@@ -40,7 +40,7 @@ const DashboardTab = ({
   const [showLiveSession, setShowLiveSession] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [lastSessionData, setLastSessionData] = useState<any>(null);
-  const [showPairingConfirmation, setShowPairingConfirmation] = useState(false);
+  
   const { isConnected: bluetoothConnected, trackerData } = useBluetooth();
 
   // Update parent state when bluetooth connection changes
@@ -59,6 +59,18 @@ const DashboardTab = ({
       });
     }
   }, [trackerData, bluetoothConnected, setLiveData]);
+
+  // Listen for start training event from other tabs
+  useEffect(() => {
+    const handleStartTraining = () => {
+      if (bluetoothConnected) {
+        startCountdown();
+      }
+    };
+    
+    window.addEventListener('start-training-countdown', handleStartTraining);
+    return () => window.removeEventListener('start-training-countdown', handleStartTraining);
+  }, [bluetoothConnected]);
 
   // Today's summary stats
   const todayStats = {
@@ -116,23 +128,10 @@ const DashboardTab = ({
   };
 
   const handleTrackerConnect = () => {
-    setShowPairingConfirmation(true);
+    // Connection is handled by useBluetooth hook, just update UI
+    console.log('Tracker connected via Bluetooth hook');
   };
 
-  const handleGoToDashboard = () => {
-    setShowPairingConfirmation(false);
-    setIsConnected(true);
-  };
-
-  // Show pairing confirmation screen
-  if (showPairingConfirmation) {
-    return (
-      <PairingConfirmation
-        trackerName="SoccerTrack Pro"
-        onGoToDashboard={handleGoToDashboard}
-      />
-    );
-  }
 
   // Show countdown screen
   console.log("showCountdown:", showCountdown);
