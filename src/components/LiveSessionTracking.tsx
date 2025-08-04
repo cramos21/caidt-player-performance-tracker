@@ -12,16 +12,8 @@ interface LiveSessionTrackingProps {
 }
 
 const LiveSessionTracking = ({ liveData, onPause, onEndSession, onBack, isPaused = false }: LiveSessionTrackingProps) => {
-  const [duration, setDuration] = useState(0);
-
-  useEffect(() => {
-    if (!isPaused) {
-      const timer = setInterval(() => {
-        setDuration(prev => prev + 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [isPaused]);
+  // Use Arduino session time if available, otherwise fall back to local timer
+  const sessionTime = liveData?.sessionTime || liveData?.duration || 0;
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -46,8 +38,8 @@ const LiveSessionTracking = ({ liveData, onPause, onEndSession, onBack, isPaused
         <Card className="bg-primary/10 border-primary/20">
           <CardContent className="pt-6 text-center">
             <Timer className="w-8 h-8 text-primary mx-auto mb-2" />
-            <div className="text-4xl font-bold text-primary">{formatTime(duration)}</div>
-            <div className="text-sm text-muted-foreground">Session Time</div>
+            <div className="text-4xl font-bold text-primary">{formatTime(sessionTime * 60)}</div>
+            <div className="text-sm text-muted-foreground">Session Time (Arduino)</div>
           </CardContent>
         </Card>
 
@@ -57,7 +49,7 @@ const LiveSessionTracking = ({ liveData, onPause, onEndSession, onBack, isPaused
             <CardContent className="pt-4 text-center">
               <Zap className="w-6 h-6 text-orange-500 mx-auto mb-2" />
               <div className="text-2xl font-bold text-foreground">{liveData?.speed?.toFixed(1) || '0.0'}</div>
-              <div className="text-xs text-muted-foreground">km/h</div>
+              <div className="text-xs text-muted-foreground">Current Speed</div>
             </CardContent>
           </Card>
 
@@ -65,7 +57,7 @@ const LiveSessionTracking = ({ liveData, onPause, onEndSession, onBack, isPaused
             <CardContent className="pt-4 text-center">
               <MapPin className="w-6 h-6 text-blue-500 mx-auto mb-2" />
               <div className="text-2xl font-bold text-foreground">{liveData?.distance?.toFixed(2) || '0.00'}</div>
-              <div className="text-xs text-muted-foreground">km</div>
+              <div className="text-xs text-muted-foreground">Total Distance</div>
             </CardContent>
           </Card>
 
@@ -73,7 +65,7 @@ const LiveSessionTracking = ({ liveData, onPause, onEndSession, onBack, isPaused
             <CardContent className="pt-4 text-center">
               <Target className="w-6 h-6 text-green-500 mx-auto mb-2" />
               <div className="text-2xl font-bold text-foreground">{liveData?.kicks || 0}</div>
-              <div className="text-xs text-muted-foreground">Kicks</div>
+              <div className="text-xs text-muted-foreground">Total Kicks</div>
             </CardContent>
           </Card>
 

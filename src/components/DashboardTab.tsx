@@ -79,7 +79,12 @@ const DashboardTab = ({
     setShowCountdown(false);
     setShowLiveSession(true);
     setCurrentSession(Date.now());
-    setLiveData({ speed: 0, distance: 0, kicks: 0, duration: 0 });
+    
+    // Reset live data and ensure we're getting real-time Arduino data
+    setLiveData({ speed: 0, distance: 0, kicks: 0, sessionTime: 0 });
+    
+    // The useBluetooth hook should automatically start sending data updates
+    console.log('🚀 Training session started - Arduino data should now flow in real-time');
   };
 
   const handleCountdownCancel = () => {
