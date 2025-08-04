@@ -36,20 +36,35 @@ export const useBluetooth = () => {
         return false;
       }
 
-      console.log('🔧 Initializing Bluetooth...');
+      console.log('🔧 Step 1: Checking platform...');
       
+      console.log('🔧 Step 2: Initializing BLE Client...');
       // Add timeout to prevent hanging
       const initPromise = BleClient.initialize();
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Bluetooth initialization timeout')), 5000)
+        setTimeout(() => reject(new Error('Bluetooth initialization timeout after 5 seconds')), 5000)
       );
       
       await Promise.race([initPromise, timeoutPromise]);
-      console.log('✅ Bluetooth initialized successfully');
+      console.log('✅ Step 2 Complete: BLE Client initialized');
+      
+      console.log('🔧 Step 3: Requesting Bluetooth permissions...');
+      // Explicitly request permissions
+      try {
+        await BleClient.requestLEScan({}, () => {});
+        await new Promise(resolve => setTimeout(resolve, 100)); // Brief scan
+        await BleClient.stopLEScan();
+        console.log('✅ Step 3 Complete: Bluetooth permissions granted');
+      } catch (permError) {
+        console.log('⚠️ Permission request failed:', permError);
+        // Continue anyway - maybe permissions were already granted
+      }
+      
+      console.log('✅ Bluetooth initialization fully complete');
       return true;
     } catch (error) {
       console.error('❌ Failed to initialize Bluetooth:', error);
-      toast.error('Failed to initialize Bluetooth: ' + error);
+      toast.error('Failed to initialize Bluetooth. Please check your Bluetooth settings and try again.');
       return false;
     }
   }, []);
