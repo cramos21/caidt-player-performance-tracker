@@ -75,37 +75,17 @@ export const useBluetooth = () => {
       
       console.log('All discovered devices:', allDevices.map(d => ({ name: d.name, id: d.deviceId })));
       
-      // Filter devices by name and show debug info
-      console.log('Filtering devices...');
-      const filteredDevices = allDevices.filter(device => {
-        const deviceName = device.name || '';
-        console.log(`Checking device: "${deviceName}" (ID: ${device.deviceId})`);
-        
-        const matches = deviceName.includes('Player Performance Tracker') ||
-                       deviceName.includes('Arduino') ||
-                       deviceName.includes('ESP32') ||
-                       deviceName.includes('Nano') ||
-                       deviceName.toLowerCase().includes('soccer') ||
-                       deviceName.toLowerCase().includes('tracker');
-        
-        if (matches) {
-          console.log(`✓ Match found: ${deviceName}`);
-        }
-        return matches;
-      });
-      
-      console.log(`Filtered ${allDevices.length} devices down to ${filteredDevices.length} potential trackers`);
-      
-      if (filteredDevices.length === 0) {
-        if (allDevices.length === 0) {
-          console.log('No Bluetooth devices found at all');
-          toast.error('No Bluetooth devices found. Make sure Bluetooth is enabled and your Arduino is powered on and nearby.');
-        } else {
-          console.log('Arduino not found among discovered devices');
-          toast.error('Arduino tracker not found. Make sure it\'s powered on, nearby, and advertising as "Player Performance Tracker".');
-        }
+      // For debugging: return ALL devices, not just filtered ones
+      console.log('DEBUGGING MODE: Returning all discovered devices');
+      if (allDevices.length === 0) {
+        console.log('No Bluetooth devices found at all');
+        toast.error('No Bluetooth devices found. Make sure Bluetooth is enabled.');
+      } else {
+        console.log(`Found ${allDevices.length} total Bluetooth devices`);
+        toast.success(`Found ${allDevices.length} Bluetooth devices. Look for your Arduino in the list.`);
       }
-      return filteredDevices;
+      
+      return allDevices; // Return ALL devices for debugging
     } catch (error) {
       console.error('Scan failed:', error);
       toast.error('Failed to scan for devices');
