@@ -78,10 +78,36 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
 
   const handleDeviceConnect = async (device: BleDevice) => {
     try {
-      await connectToDevice(device);
-      onConnect(); // Call the parent callback on successful connection
+      console.log(`🔗 Connecting to: ${device.name || 'Unknown'}`);
+      
+      // Connect and stay connected (same as debug page)
+      await BleClient.connect(device.deviceId, (deviceId) => {
+        console.log(`🔌 Device ${deviceId.slice(-8)} disconnected`);
+        onConnect(); // Notify parent that we're disconnected
+      });
+      
+      console.log('✅ Connected successfully');
+      
+      // Verify it has the correct service
+      const services = await BleClient.getServices(device.deviceId);
+      const expectedService = '12345678-1234-1234-1234-123456789abc';
+      const hasExpectedService = services.some(s => 
+        s.uuid.toLowerCase() === expectedService.toLowerCase()
+      );
+      
+      if (hasExpectedService) {
+        console.log('🎯 Soccer tracker service found!');
+        toast.success('Arduino connected successfully!');
+        onConnect(); // Notify parent that we're connected
+      } else {
+        console.log('⚠️ Wrong device type - disconnecting');
+        await BleClient.disconnect(device.deviceId);
+        toast.error('Device connected but missing soccer tracker service');
+      }
+      
     } catch (error) {
-      console.error('Connection failed:', error);
+      console.error('❌ Connection failed:', error);
+      toast.error('Failed to connect: ' + error);
     }
   };
 

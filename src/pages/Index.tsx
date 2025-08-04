@@ -193,8 +193,6 @@ const Index = () => {
         return <GoalsRewards goals={goals} setGoals={setGoals} />;
       case 'account':
         return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />;
-      case 'debug':
-        return <BluetoothDebugger />;
       default:
         return null;
     }
