@@ -68,7 +68,7 @@ const PerformanceTest = ({ onBack, onStartTraining, isConnected = false }: Perfo
           <Button 
             onClick={onStartTraining}
             size="lg" 
-            className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
+            className={`w-full h-14 text-lg font-bold ${isConnected ? 'bg-primary hover:bg-primary/90' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}
             disabled={!isConnected}
           >
             <Trophy className="w-5 h-5 mr-1" />

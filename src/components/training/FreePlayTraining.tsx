@@ -62,7 +62,7 @@ const FreePlayTraining = ({ onBack, onStartTraining, isConnected = false }: Free
           <Button 
             onClick={onStartTraining}
             size="lg" 
-            className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
+            className={`w-full h-14 text-lg font-bold ${isConnected ? 'bg-primary hover:bg-primary/90' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}
             disabled={!isConnected}
           >
             <Play className="w-5 h-5 mr-1" />
