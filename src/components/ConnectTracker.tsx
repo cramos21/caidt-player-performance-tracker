@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bluetooth, Smartphone, Wifi, CheckCircle, Search } from "lucide-react";
+import { Bluetooth, Smartphone, CheckCircle, Search } from "lucide-react";
 import { useBluetooth } from "@/hooks/useBluetooth";
 import { useState } from "react";
 import { BleDevice, BleClient } from '@capacitor-community/bluetooth-le';
@@ -16,11 +15,14 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   const { isScanning, scanForDevices, connectToDevice, debugInfo } = useBluetooth();
   const [availableDevices, setAvailableDevices] = useState<BleDevice[]>([]);
   const [showDevices, setShowDevices] = useState(false);
+  const [scanInProgress, setScanInProgress] = useState(false);
 
   const handleScan = async () => {
     try {
       console.log('Starting scan...');
+      setScanInProgress(true);
       setAvailableDevices([]);
+      setShowDevices(true); // Show device list immediately with loading state
       
       // Use the EXACT same logic as the debug scanner that works
       console.log('🔧 Initializing Bluetooth...');
@@ -51,31 +53,28 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
       
       console.log(`📋 Total devices found: ${allDevices.length}`);
       
-      // Filter for soccer trackers - be more lenient with naming
+      // Always show all devices found
+      setAvailableDevices(allDevices);
+      setScanInProgress(false);
+      
+      // Filter for soccer trackers for the toast message
       const trackers = allDevices.filter(device => {
         const name = device.name?.toLowerCase() || '';
-        // Look for common soccer tracker names
         return name.includes('soccer') || 
                name.includes('tracker') || 
                (name.includes('player') && name.includes('performance')) ||
                name.includes('arduino');
       });
       
-      console.log('Filtered trackers:', trackers.length);
-      setAvailableDevices(trackers);
-      setShowDevices(true);
-      
       if (trackers.length === 0) {
-        // Show all devices if no trackers found
-        console.log('No trackers found, showing all devices');
-        setAvailableDevices(allDevices);
-        toast.info(`No trackers found. Showing all ${allDevices.length} devices - look for your Arduino.`);
+        toast.info(`Found ${allDevices.length} devices - look for your Arduino or tracker device.`);
       } else {
-        toast.success(`Found ${trackers.length} soccer tracker(s)!`);
+        toast.success(`Found ${trackers.length} potential soccer tracker(s) and ${allDevices.length - trackers.length} other devices!`);
       }
     } catch (error) {
       console.error('Scan failed:', error);
       toast.error('Scan failed: ' + error);
+      setScanInProgress(false);
       setShowDevices(true);
     }
   };
@@ -151,16 +150,15 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
           </div>
         </div>
 
-
         {!showDevices ? (
           <div className="text-center space-y-3">
             <Button 
               onClick={handleScan} 
               size="lg" 
-              disabled={isScanning}
+              disabled={isScanning || scanInProgress}
               className="w-full sm:w-auto h-14 text-lg font-bold bg-primary hover:bg-primary/90 touch-target px-8"
             >
-              {isScanning ? (
+              {scanInProgress ? (
                 <>
                   <Search className="w-4 h-4 mr-0.5 animate-spin" />
                   Scanning...
@@ -173,7 +171,7 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
               )}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Make sure your Performance Soccer Tracker is within 10 meters and powered on
+              Make sure your Arduino soccer tracker is within 10 meters and powered on
             </p>
           </div>
         ) : (
@@ -183,21 +181,29 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
               <p className="text-sm text-muted-foreground">Look for devices marked as "Recommended" - these are likely your soccer tracker</p>
             </div>
             
-            {availableDevices.length > 0 ? (
+            {scanInProgress ? (
+              <div className="text-center py-8 space-y-4">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="text-foreground font-medium">Scanning for devices...</p>
+                <p className="text-xs text-muted-foreground">Looking for your Arduino soccer tracker</p>
+              </div>
+            ) : availableDevices.length > 0 ? (
               <div className="space-y-3">
                 {availableDevices.map((device) => {
-                  // Determine device type and confidence
+                  // Determine device type and confidence - FIXED Arduino detection
                   const name = device.name || 'Unknown Device';
                   const isLikelySoccerTracker = name.toLowerCase().includes('soccer') || 
                                               name.toLowerCase().includes('player') ||
-                                              name.toLowerCase().includes('performance');
+                                              name.toLowerCase().includes('performance') ||
+                                              name.toLowerCase().includes('arduino') ||  // Key fix!
+                                              name.toLowerCase().includes('tracker');
                   
                   return (
                     <div key={device.deviceId} className={`flex items-center justify-between p-4 border rounded-lg ${
                       isLikelySoccerTracker ? 'border-primary bg-primary/5' : 'border-border bg-muted/10'
                     }`}>
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
                           isLikelySoccerTracker ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                         }`}>
                           {isLikelySoccerTracker ? '⚽' : 'BT'}
@@ -230,6 +236,21 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
                     </div>
                   );
                 })}
+                <div className="text-center pt-4 border-t border-border space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleScan}
+                    disabled={scanInProgress}
+                  >
+                    {scanInProgress ? 'Scanning...' : 'Scan Again'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowDevices(false)}
+                  >
+                    Back
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="text-center py-6 space-y-3">
@@ -238,23 +259,12 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
                 <Button
                   variant="outline"
                   onClick={handleScan}
-                  className="mt-2"
-                  disabled={isScanning}
+                  disabled={scanInProgress}
                 >
-                  Scan Again
+                  {scanInProgress ? 'Scanning...' : 'Scan Again'}
                 </Button>
               </div>
             )}
-            
-            <div className="text-center">
-              <Button
-                variant="outline"
-                onClick={() => setShowDevices(false)}
-                className="w-full sm:w-auto"
-              >
-                Back to Instructions
-              </Button>
-            </div>
           </div>
         )}
 
