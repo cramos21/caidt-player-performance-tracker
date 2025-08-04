@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ConnectTracker from "@/components/ConnectTracker";
 
 import CountdownScreen from "@/components/CountdownScreen";
 import LiveSessionTracking from "@/components/LiveSessionTracking";
@@ -127,6 +128,10 @@ const DashboardTab = ({
     setIsPaused(false);
   };
 
+  const handleTrackerConnect = () => {
+    // Connection is handled by useBluetooth hook, just update UI
+    console.log('Tracker connected via Bluetooth hook');
+  };
 
 
   // Show countdown screen
@@ -301,6 +306,9 @@ const DashboardTab = ({
           ))}
         </CardContent>
       </Card>
+
+      {/* Connection Status - Show when not connected */}
+      {!isConnected && <ConnectTracker onConnect={handleTrackerConnect} />}
     </div>
   );
 };
