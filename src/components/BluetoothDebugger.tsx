@@ -57,26 +57,53 @@ const BluetoothDebugger = () => {
         return false;
       }
 
-      // Try to initialize BLE
+      // Step 1: Initialize BLE
+      addLog('🔧 Initializing Bluetooth...');
       try {
         await BleClient.initialize();
-        addLog('✅ BLE Client initialized successfully');
+        addLog('✅ BLE Client initialized');
         setSystemInfo(prev => ({ ...prev, bluetoothEnabled: true }));
       } catch (error) {
         addLog(`❌ BLE initialization failed: ${error}`);
         setSystemInfo(prev => ({ ...prev, bluetoothEnabled: false }));
+        toast.error('Failed to initialize Bluetooth');
         return false;
       }
 
-      // Test permissions by attempting a brief scan
+      // Step 2: Request permissions explicitly
+      addLog('🔧 Requesting Bluetooth permissions...');
       try {
-        await BleClient.requestLEScan({}, () => {});
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // First check if we already have permissions
+        addLog('Checking current permission status...');
+        
+        // Try to enable notifications to trigger permission request
+        addLog('Triggering permission dialog...');
+        
+        // This should trigger the iOS permission dialog
+        await BleClient.requestLEScan({
+          allowDuplicates: false
+        }, (result) => {
+          addLog(`Permission scan detected: ${result.device.name || 'Unknown'}`);
+        });
+        
+        // Wait a moment for permission dialog
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Stop the permission scan
         await BleClient.stopLEScan();
-        addLog('✅ Bluetooth permissions granted');
+        
+        addLog('✅ Permission request completed');
+        addLog('📱 Check your iPhone for permission dialogs');
+        addLog('⚠️ You may need to restart the app after granting permissions');
+        
         setSystemInfo(prev => ({ ...prev, permissionsGranted: true }));
+        
+        toast.info('Permission requested! Check iPhone Settings if no dialog appeared.');
+        
       } catch (error) {
-        addLog(`❌ Permission test failed: ${error}`);
+        addLog(`⚠️ Permission request process: ${error}`);
+        addLog('📱 Go to iPhone Settings → Privacy → Bluetooth to manually enable');
+        addLog('📱 Also enable Location Services for this app');
         setSystemInfo(prev => ({ ...prev, permissionsGranted: false }));
       }
 
