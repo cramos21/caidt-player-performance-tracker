@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ConnectTracker from "@/components/ConnectTracker";
+
 import CountdownScreen from "@/components/CountdownScreen";
 import LiveSessionTracking from "@/components/LiveSessionTracking";
 
-import LiveArduinoData from "@/components/LiveArduinoData";
+
 import { useBluetooth } from "@/hooks/useBluetooth";
 import { Activity, Zap, Target, Timer, Trophy, Camera } from "lucide-react";
 
@@ -127,10 +127,6 @@ const DashboardTab = ({
     setIsPaused(false);
   };
 
-  const handleTrackerConnect = () => {
-    // Connection is handled by useBluetooth hook, just update UI
-    console.log('Tracker connected via Bluetooth hook');
-  };
 
 
   // Show countdown screen
@@ -305,16 +301,6 @@ const DashboardTab = ({
           ))}
         </CardContent>
       </Card>
-
-      {/* Connection Status */}
-      {!isConnected && <ConnectTracker onConnect={handleTrackerConnect} />}
-
-      {/* Arduino Nano Tracker Integration */}
-      <LiveArduinoData 
-        onSessionStart={() => setCurrentSession(Date.now())}
-        onSessionEnd={handleEndSession}
-        isSessionActive={!!currentSession}
-      />
     </div>
   );
 };
