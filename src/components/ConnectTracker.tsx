@@ -179,36 +179,62 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
         ) : (
           <div className="space-y-4">
             <div className="text-center">
-              <h4 className="font-semibold text-foreground mb-2">Available Soccer Trackers</h4>
-              <p className="text-sm text-muted-foreground">Select your Arduino Nano tracker to connect</p>
+              <h4 className="font-semibold text-foreground mb-2">Available Devices</h4>
+              <p className="text-sm text-muted-foreground">Look for devices marked as "Recommended" - these are likely your soccer tracker</p>
             </div>
             
             {availableDevices.length > 0 ? (
               <div className="space-y-3">
-                {availableDevices.map((device) => (
-                  <div key={device.deviceId} className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-primary-foreground text-xs font-bold">
-                        ST
+                {availableDevices.map((device) => {
+                  // Determine device type and confidence
+                  const name = device.name || 'Unknown Device';
+                  const isLikelySoccerTracker = name.toLowerCase().includes('soccer') || 
+                                              name.toLowerCase().includes('player') ||
+                                              name.toLowerCase().includes('performance');
+                  
+                  return (
+                    <div key={device.deviceId} className={`flex items-center justify-between p-4 border rounded-lg ${
+                      isLikelySoccerTracker ? 'border-primary bg-primary/5' : 'border-border bg-muted/10'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${
+                          isLikelySoccerTracker ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {isLikelySoccerTracker ? '⚽' : 'BT'}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-foreground flex items-center gap-2">
+                            {name}
+                            {isLikelySoccerTracker && (
+                              <Badge variant="default" className="text-xs">Recommended</Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground space-y-1">
+                            <div>Device ID: {device.deviceId.slice(-8)}</div>
+                            <div className="text-xs">
+                              {isLikelySoccerTracker ? '✅ Likely soccer tracker' : '⚠️ Generic Bluetooth device'}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-medium text-foreground">{device.name || 'Soccer Tracker'}</div>
-                        <div className="text-xs text-muted-foreground">Arduino Nano • ID: {device.deviceId.slice(-6)}</div>
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          onClick={() => handleDeviceConnect(device)}
+                          size="sm"
+                          variant={isLikelySoccerTracker ? "default" : "outline"}
+                          className={isLikelySoccerTracker ? "bg-primary hover:bg-primary/90" : ""}
+                        >
+                          Connect
+                        </Button>
                       </div>
                     </div>
-                    <Button
-                      onClick={() => handleDeviceConnect(device)}
-                      size="sm"
-                      className="bg-primary hover:bg-primary/90"
-                    >
-                      Connect
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <div className="text-center py-6">
+              <div className="text-center py-6 space-y-3">
                 <p className="text-muted-foreground">No devices found</p>
+                <p className="text-xs text-muted-foreground">Make sure your Arduino soccer tracker is powered on and nearby</p>
                 <Button
                   variant="outline"
                   onClick={handleScan}
