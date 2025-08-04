@@ -70,19 +70,17 @@ export const useBluetooth = () => {
       
       console.log('All discovered devices:', allDevices.map(d => ({ name: d.name, id: d.deviceId })));
       
-      // Filter devices by name (looking for Arduino-like names)
-      const filteredDevices = allDevices.filter(device => 
-        device.name && (
-          device.name.includes('Player Performance Tracker') ||
-          device.name.includes('Arduino') ||
-          device.name.includes('ESP32') ||
-          device.name.includes('Nano') ||
-          device.name.toLowerCase().includes('soccer') ||
-          device.name.toLowerCase().includes('tracker')
-        )
-      );
+      // TEMPORARILY SHOW ALL DEVICES for debugging - remove filtering
+      const filteredDevices = allDevices;
       
-      console.log('Found potential tracker devices:', filteredDevices);
+      console.log('Returning all devices for debugging:', filteredDevices);
+      
+      if (filteredDevices.length === 0) {
+        console.log('No devices found at all - check if Bluetooth is working');
+        toast.error('No Bluetooth devices found. Make sure Bluetooth is enabled.');
+      } else {
+        console.log(`Found ${filteredDevices.length} total devices`);
+      }
       return filteredDevices;
     } catch (error) {
       console.error('Scan failed:', error);
