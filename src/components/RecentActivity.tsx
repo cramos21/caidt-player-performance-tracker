@@ -66,47 +66,63 @@ const RecentActivity = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {recentSessions.map((session) => (
-            <div key={session.id} className="border border-primary/20 rounded-lg p-4 hover:bg-card hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer bg-card/50 backdrop-blur-sm group">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Clock className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors duration-300" />
-                    <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">{session.date}</span>
-                    {getPerformanceBadge(session.performance)}
+            <div key={session.id} className="border border-primary/20 rounded-2xl p-6 hover:bg-card hover:shadow-xl hover:shadow-primary/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer bg-card/50 backdrop-blur-sm group">
+              {/* Header with date, location and performance badge */}
+              <div className="flex items-start justify-between mb-6">
+                <div className="space-y-1">
+                  <div className="text-lg font-medium text-foreground group-hover:text-primary transition-colors duration-300">
+                    {session.date}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                    <MapPin className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                  <div className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
                     {session.location}
                   </div>
                 </div>
-                
+                {getPerformanceBadge(session.performance)}
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-                <div className="text-center hover:scale-105 transition-transform duration-300">
-                  <div className="text-lg font-semibold text-blue-600 group-hover:text-blue-400 transition-colors duration-300">{session.duration}</div>
-                  <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Duration</div>
+              {/* Metrics in 2x2 grid */}
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div className="text-center space-y-1 hover:scale-105 transition-transform duration-300">
+                  <div className="text-3xl font-bold text-blue-400 group-hover:text-blue-300 transition-colors duration-300">
+                    {session.duration.replace(' min', '')}
+                  </div>
+                  <div className="text-xs font-medium text-blue-400/80">mins</div>
+                  <div className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">Duration</div>
                 </div>
-                <div className="text-center hover:scale-105 transition-transform duration-300">
-                  <div className="text-lg font-semibold text-green-600 group-hover:text-green-400 transition-colors duration-300">{session.maxSpeed}</div>
-                  <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Max Speed</div>
+                
+                <div className="text-center space-y-1 hover:scale-105 transition-transform duration-300">
+                  <div className="text-3xl font-bold text-green-400 group-hover:text-green-300 transition-colors duration-300">
+                    {session.maxSpeed.replace(' km/h', '')}
+                  </div>
+                  <div className="text-xs font-medium text-green-400/80">km/h</div>
+                  <div className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">Max Speed</div>
                 </div>
-                <div className="text-center hover:scale-105 transition-transform duration-300">
-                  <div className="text-lg font-semibold text-purple-600 group-hover:text-purple-400 transition-colors duration-300">{session.distance}</div>
-                  <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Distance</div>
+                
+                <div className="text-center space-y-1 hover:scale-105 transition-transform duration-300">
+                  <div className="text-3xl font-bold text-purple-400 group-hover:text-purple-300 transition-colors duration-300">
+                    {session.distance.replace(' km', '')}
+                  </div>
+                  <div className="text-xs font-medium text-purple-400/80">km</div>
+                  <div className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">Distance</div>
                 </div>
-                <div className="text-center hover:scale-105 transition-transform duration-300">
-                  <div className="text-lg font-semibold text-orange-600 group-hover:text-orange-400 transition-colors duration-300">{session.kicks}</div>
-                  <div className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300">Kicks</div>
+                
+                <div className="text-center space-y-1 hover:scale-105 transition-transform duration-300">
+                  <div className="text-3xl font-bold text-orange-400 group-hover:text-orange-300 transition-colors duration-300">
+                    {session.kicks}
+                  </div>
+                  <div className="text-xs font-medium text-orange-400/80"></div>
+                  <div className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">Kicks</div>
                 </div>
               </div>
 
+              {/* Achievement highlights */}
               {session.highlights.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {session.highlights.map((highlight, index) => (
-                    <span key={index} className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full group-hover:bg-yellow-200 group-hover:scale-105 transition-all duration-300">
-                      ⭐ {highlight}
-                    </span>
+                    <div key={index} className="flex items-center gap-2 bg-yellow-500/10 text-yellow-400 px-4 py-2 rounded-full text-sm font-medium group-hover:bg-yellow-500/20 group-hover:scale-105 transition-all duration-300">
+                      <span className="text-yellow-500">⭐</span>
+                      {highlight}
+                    </div>
                   ))}
                 </div>
               )}
