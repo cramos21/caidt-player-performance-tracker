@@ -37,37 +37,41 @@ export const useBluetooth = () => {
       }
 
       console.log('🔧 Step 1: Checking platform...');
+      console.log('🔧 Step 2: Initializing BLE Client with explicit permissions...');
       
-      console.log('🔧 Step 2: Initializing BLE Client...');
-      await BleClient.initialize();
-      console.log('✅ Step 2 Complete: BLE Client initialized');
-      
-      console.log('🔧 Step 3: Requesting permissions explicitly...');
-      
-      // For iOS, we need to request permissions by attempting operations
-      try {
-        // This will trigger the permission request dialogs
-        console.log('🔧 Requesting Bluetooth permissions...');
-        await BleClient.requestLEScan({
-          allowDuplicates: false
-        }, () => {});
-        
-        // Let it run briefly to trigger permission dialog
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        await BleClient.stopLEScan();
-        
-        console.log('✅ Step 3 Complete: Bluetooth permissions should now be requested');
-      } catch (permError) {
-        console.log('⚠️ Initial permission request failed (this is normal):', permError);
-        // This is actually expected - the permission dialog might appear but scanning fails
-        // until user grants permission
+      // For iOS, request permissions explicitly first
+      if (Capacitor.getPlatform() === 'ios') {
+        console.log('📱 iOS detected - requesting explicit permissions...');
+        try {
+          // Request permissions first
+          await BleClient.initialize({
+            androidNeverForLocation: false
+          });
+          console.log('✅ iOS BLE initialized with permissions');
+        } catch (iosError) {
+          console.error('❌ iOS BLE initialization failed:', iosError);
+          throw iosError;
+        }
+      } else {
+        // Android initialization
+        await BleClient.initialize();
+        console.log('✅ Android BLE initialized');
       }
       
-      console.log('✅ Bluetooth initialization complete - check iPhone Settings for permission prompts');
+      // Test if BLE is actually working
+      const isEnabled = await BleClient.isEnabled();
+      console.log('📱 BLE enabled check:', isEnabled);
+      
+      if (!isEnabled) {
+        toast.error('Bluetooth is not enabled on your device');
+        return false;
+      }
+      
+      console.log('✅ Bluetooth initialization complete and verified');
       return true;
     } catch (error) {
       console.error('❌ Failed to initialize Bluetooth:', error);
-      toast.error('Failed to initialize Bluetooth. Please check your settings and restart the app.');
+      toast.error(`Failed to initialize Bluetooth: ${error.message}`);
       return false;
     }
   }, []);
