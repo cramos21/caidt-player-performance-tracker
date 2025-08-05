@@ -18,23 +18,26 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   const [showDevices, setShowDevices] = useState(false);
   const [scanInProgress, setScanInProgress] = useState(false);
 
-  // Test if BLE is available at all using the proper hook initialization
+  // Test if BLE is available at all - minimal test
   const testBLE = async () => {
     try {
-      console.log('🧪 === BLE TEST START ===');
+      console.log('🧪 === MINIMAL BLE TEST ===');
       
-      // Just try basic initialization
+      // Check platform first
+      if (!Capacitor.isNativePlatform()) {
+        toast.error('Bluetooth requires native iOS app build');
+        return;
+      }
+      
+      // Only initialize - don't call any other methods that might fail
       await BleClient.initialize();
-      console.log('✅ BLE initialized');
+      console.log('✅ BLE Client initialized successfully');
       
-      const isEnabled = await BleClient.isEnabled();
-      console.log('📱 Bluetooth enabled:', isEnabled);
-      
-      toast.success(`BLE working! Bluetooth: ${isEnabled}`);
+      toast.success('BLE initialization successful! Try scanning now.');
       
     } catch (error) {
-      console.error('❌ BLE Error:', error.message);
-      toast.error(`BLE failed: ${error.message}`);
+      console.error('❌ BLE Initialization Error:', error);
+      toast.error(`BLE initialization failed: ${error.message}`);
     }
   };
 
