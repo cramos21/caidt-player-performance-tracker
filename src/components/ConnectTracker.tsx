@@ -18,31 +18,22 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   const [showDevices, setShowDevices] = useState(false);
   const [scanInProgress, setScanInProgress] = useState(false);
 
-  // Global BLE initialization state
-  const [bleInitialized, setBleInitialized] = useState(false);
-
-  // Initialize BLE once and reuse
+  // Reset and initialize BLE completely fresh each time
   const initializeBLE = async () => {
-    if (bleInitialized) {
-      console.log('✅ BLE already initialized');
-      return true;
-    }
-
     try {
-      console.log('🔧 Initializing BLE Client...');
+      console.log('🔧 Fresh BLE Client initialization...');
       
       if (!Capacitor.isNativePlatform()) {
         throw new Error('Bluetooth requires native iOS app build');
       }
       
+      // Always initialize fresh - don't cache state
       await BleClient.initialize();
       console.log('✅ BLE Client initialized successfully');
-      setBleInitialized(true);
       return true;
       
     } catch (error) {
       console.error('❌ BLE Initialization failed:', error);
-      setBleInitialized(false);
       throw error;
     }
   };
