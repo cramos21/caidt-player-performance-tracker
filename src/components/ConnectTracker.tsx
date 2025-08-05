@@ -21,55 +21,20 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   // Test if BLE is available at all using the proper hook initialization
   const testBLE = async () => {
     try {
-      console.log('🧪 === DETAILED BLE TEST ===');
-      console.log('Platform:', Capacitor.getPlatform());
-      console.log('Is native platform:', Capacitor.isNativePlatform());
-      console.log('User agent:', navigator.userAgent);
+      console.log('🧪 === BLE TEST START ===');
       
-      if (!Capacitor.isNativePlatform()) {
-        toast.error('Bluetooth requires a native app build');
-        return;
-      }
+      // Just try basic initialization
+      await BleClient.initialize();
+      console.log('✅ BLE initialized');
       
-      // Simple test - just try to initialize without any extra options
-      console.log('🔧 Test 1: Simple BLE initialize...');
-      try {
-        await BleClient.initialize();
-        console.log('✅ BLE Initialize successful');
-        toast.success('BLE Initialize successful');
-        
-        // Test 2: Check if enabled
-        console.log('🔧 Test 2: Check if BLE enabled...');
-        const isEnabled = await BleClient.isEnabled();
-        console.log('📱 Bluetooth enabled:', isEnabled);
-        
-        // Test 3: Check location
-        console.log('🔧 Test 3: Check location enabled...');
-        const isLocationEnabled = await BleClient.isLocationEnabled();
-        console.log('📍 Location enabled:', isLocationEnabled);
-        
-        console.log('🧪 === ALL TESTS PASSED ===');
-        toast.success(`BLE: ${isEnabled}, Location: ${isLocationEnabled}`);
-        
-      } catch (innerError) {
-        console.error('❌ Inner error details:');
-        console.error('- Message:', innerError.message);
-        console.error('- Code:', innerError.code);
-        console.error('- Name:', innerError.name);
-        console.error('- Stack:', innerError.stack);
-        console.error('- Full object:', JSON.stringify(innerError, null, 2));
-        
-        toast.error(`BLE failed: ${innerError.message}. Check console for details.`);
-      }
+      const isEnabled = await BleClient.isEnabled();
+      console.log('📱 Bluetooth enabled:', isEnabled);
+      
+      toast.success(`BLE working! Bluetooth: ${isEnabled}`);
       
     } catch (error) {
-      console.error('❌ === OUTER BLE TEST FAILED ===');
-      console.error('Error type:', error.constructor.name);
-      console.error('Error message:', error.message);
-      console.error('Error code:', error.code);
-      console.error('Full error:', error);
-      
-      toast.error(`BLE test failed: ${error.message || 'Unknown error'}`);
+      console.error('❌ BLE Error:', error.message);
+      toast.error(`BLE failed: ${error.message}`);
     }
   };
 
