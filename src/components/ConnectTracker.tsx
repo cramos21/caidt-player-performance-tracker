@@ -18,26 +18,44 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
   const [showDevices, setShowDevices] = useState(false);
   const [scanInProgress, setScanInProgress] = useState(false);
 
-  // Test if BLE is available at all - minimal test
-  const testBLE = async () => {
+  // Global BLE initialization state
+  const [bleInitialized, setBleInitialized] = useState(false);
+
+  // Initialize BLE once and reuse
+  const initializeBLE = async () => {
+    if (bleInitialized) {
+      console.log('✅ BLE already initialized');
+      return true;
+    }
+
     try {
-      console.log('🧪 === MINIMAL BLE TEST ===');
+      console.log('🔧 Initializing BLE Client...');
       
-      // Check platform first
       if (!Capacitor.isNativePlatform()) {
-        toast.error('Bluetooth requires native iOS app build');
-        return;
+        throw new Error('Bluetooth requires native iOS app build');
       }
       
-      // Only initialize - don't call any other methods that might fail
       await BleClient.initialize();
       console.log('✅ BLE Client initialized successfully');
-      
-      toast.success('BLE initialization successful! Try scanning now.');
+      setBleInitialized(true);
+      return true;
       
     } catch (error) {
-      console.error('❌ BLE Initialization Error:', error);
-      toast.error(`BLE initialization failed: ${error.message}`);
+      console.error('❌ BLE Initialization failed:', error);
+      setBleInitialized(false);
+      throw error;
+    }
+  };
+
+  // Simple test function
+  const testBLE = async () => {
+    try {
+      console.log('🧪 === BLE TEST START ===');
+      await initializeBLE();
+      toast.success('BLE initialization successful! Try scanning now.');
+    } catch (error) {
+      console.error('❌ BLE Test Error:', error.message);
+      toast.error(`BLE test failed: ${error.message}`);
     }
   };
 
@@ -51,15 +69,9 @@ const ConnectTracker = ({ onConnect }: ConnectTrackerProps) => {
       setAvailableDevices([]);
       setShowDevices(true);
       
-      // Test if BLE is available at all
-      console.log('🔧 Testing BLE availability...');
-      try {
-        await BleClient.initialize();
-        console.log('✅ BLE Client initialized successfully');
-      } catch (initError) {
-        console.error('❌ BLE initialization failed:', initError);
-        throw new Error(`BLE initialization failed: ${initError.message}`);
-      }
+      // Use shared BLE initialization
+      console.log('🔧 Ensuring BLE is initialized...');
+      await initializeBLE();
 
       // Check if we can even start a scan
       console.log('🔍 Attempting to start scan...');
