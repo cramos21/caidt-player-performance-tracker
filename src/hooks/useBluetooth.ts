@@ -3,7 +3,6 @@ import { BleClient, BleDevice, numbersToDataView, dataViewToNumbers } from '@cap
 import { Capacitor } from '@capacitor/core';
 import { toast } from 'sonner';
 
-// Arduino Nano service and characteristic UUIDs (matching your Arduino code)
 const SOCCER_TRACKER_SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
 const KICKS_CHARACTERISTIC_UUID = '12345678-1234-1234-1234-123456789001';
 const DISTANCE_CHARACTERISTIC_UUID = '12345678-1234-1234-1234-123456789002';
@@ -11,10 +10,10 @@ const MAX_SPEED_CHARACTERISTIC_UUID = '12345678-1234-1234-1234-123456789003';
 const TIME_CHARACTERISTIC_UUID = '12345678-1234-1234-1234-123456789004';
 
 export interface SoccerTrackerData {
-  speed: number; // km/h
-  distance: number; // km
+  speed: number;
+  distance: number;
   kicks: number;
-  sessionTime: number; // minutes
+  sessionTime: number;
 }
 
 export const useBluetooth = () => {
@@ -32,36 +31,28 @@ export const useBluetooth = () => {
   const initializeBluetooth = useCallback(async () => {
     try {
       if (!Capacitor.isNativePlatform()) {
-        toast.error('Bluetooth scanning requires a native app build. Please build and install the native iOS app.');
+        toast.error('Bluetooth scanning requires a native app build.');
         return false;
       }
 
       console.log('🔧 Step 1: Checking platform...');
-      console.log('🔧 Step 2: Initializing BLE Client with explicit permissions...');
+      console.log('🔧 Step 2: Initializing BLE Client...');
 
       if (Capacitor.getPlatform() === 'ios') {
-        console.log('📱 iOS detected - requesting explicit permissions...');
-        try {
-          await BleClient.initialize({ androidNeverForLocation: false });
-          console.log('✅ iOS BLE initialized with permissions');
-        } catch (iosError) {
-          console.error('❌ iOS BLE initialization failed:', iosError);
-          throw iosError;
-        }
+        await BleClient.initialize({ androidNeverForLocation: false });
+        console.log('✅ iOS BLE initialized');
       } else {
         await BleClient.initialize();
         console.log('✅ Android BLE initialized');
       }
 
       const isEnabled = await BleClient.isEnabled();
-      console.log('📱 BLE enabled check:', isEnabled);
-
       if (!isEnabled) {
         toast.error('Bluetooth is not enabled on your device');
         return false;
       }
 
-      console.log('✅ Bluetooth initialization complete and verified');
+      console.log('✅ Bluetooth is enabled');
       return true;
     } catch (error) {
       console.error('❌ Failed to initialize Bluetooth:', error);
@@ -76,58 +67,59 @@ export const useBluetooth = () => {
       setDebugInfo(prev => [...prev.slice(-10), `${new Date().toLocaleTimeString()}: ${msg}`]);
     };
 
-    addDebug('🔍 Starting Bluetooth scan...');
-    try {
-      setIsScanning(true);
-      setDebugInfo([]);
+    setIsScanning(true);
+    setDebugInfo([]);
 
-      addDebug('🔧 Auto-initializing Bluetooth...');
+    const foundDevices: BleDevice[] = [];
+
+    try {
+      addDebug('🔧 Initializing BLE (if needed)...');
       try {
         await BleClient.initialize();
         addDebug('✅ BLE Client initialized');
-      } catch (initError) {
-        addDebug(`⚠️ Init failed (might already be initialized): ${initError}`);
+      } catch (err) {
+        addDebug(`⚠️ Init skipped (already initialized): ${err}`);
       }
 
-      addDebug('🔍 Attempting direct BLE scan...');
+      addDebug('🔍 Starting BLE scan...');
       await BleClient.requestLEScan(
         { allowDuplicates: false },
         (result) => {
-          const deviceInfo = `📱 Found: ${result.device.name || 'Unknown'} (${result.device.deviceId.slice(0, 8)}...)`;
-          addDebug(deviceInfo);
+          const device = result.device;
+          if (!device) return;
+
+          const exists = foundDevices.some(d => d.deviceId === device.deviceId);
+          if (!exists) {
+            foundDevices.push(device);
+            const deviceInfo = `📱 Found: ${device.name || 'Unknown'} (${device.deviceId.slice(0, 8)}...)`;
+            addDebug(deviceInfo);
+          }
         }
       );
-      addDebug('✅ Direct scan started successfully');
 
       await new Promise(resolve => setTimeout(resolve, 6000));
-
-      addDebug('🛑 Stopping scan and getting results...');
-      const allDevices = await BleClient.getDevices([]);
       await BleClient.stopLEScan();
+      addDebug('🛑 Scan stopped');
 
-      addDebug(`📋 Total devices found: ${allDevices.length}`);
-      allDevices.forEach((device, index) => {
-        addDebug(`Device ${index + 1}: ${device.name || 'No Name'} - ID: ${device.deviceId.slice(-6)}`);
-      });
-
-      if (allDevices.length === 0) {
-        addDebug('❌ No Bluetooth devices found');
-        toast.error('No devices found. Make sure your Arduino is advertising.');
-      } else {
-        const trackers = allDevices.filter(device => {
-          const name = device.name?.toLowerCase() || '';
-          return name.includes('arduino') || name.includes('performance') || name.includes('player') || name.includes('tracker');
-        });
-
-        if (trackers.length > 0) {
-          addDebug(`🎯 Found ${trackers.length} Performance Tracker(s)!`);
-          toast.success(`Found ${trackers.length} Performance Tracker(s)!`);
-        } else {
-          toast.info(`Found ${allDevices.length} devices. Look for "Arduino" or "Player Performance Tracker".`);
-        }
+      if (foundDevices.length === 0) {
+        addDebug('❌ No devices found');
+        toast.error('No devices found. Make sure your tracker is turned on and nearby.');
+        return [];
       }
 
-      return allDevices;
+      const trackers = foundDevices.filter(device => {
+        const name = device.name?.toLowerCase() || '';
+        return name.includes('arduino') || name.includes('performance') || name.includes('player') || name.includes('tracker');
+      });
+
+      if (trackers.length > 0) {
+        addDebug(`🎯 Found ${trackers.length} Performance Tracker(s)!`);
+        toast.success(`Found ${trackers.length} Performance Tracker(s)!`);
+      } else {
+        toast.info(`Found ${foundDevices.length} devices. Look for one named "Player Performance Tracker".`);
+      }
+
+      return foundDevices;
     } catch (error) {
       addDebug(`❌ Scan failed: ${error}`);
       toast.error('Bluetooth scan failed: ' + error);
@@ -140,18 +132,18 @@ export const useBluetooth = () => {
 
   const connectToDevice = useCallback(async (device: BleDevice) => {
     try {
-      await BleClient.connect(device.deviceId, (deviceId) => {
-        console.log(`Disconnected from device ${deviceId}`);
+      await BleClient.connect(device.deviceId, () => {
+        console.log(`🔌 Disconnected from ${device.deviceId}`);
         setIsConnected(false);
         setConnectedDevice(null);
         toast.info('Device disconnected');
       });
 
       const services = await BleClient.getServices(device.deviceId);
-      const hasTrackerService = services.some(service => service.uuid.toLowerCase() === SOCCER_TRACKER_SERVICE_UUID.toLowerCase());
+      const hasService = services.some(service => service.uuid.toLowerCase() === SOCCER_TRACKER_SERVICE_UUID.toLowerCase());
 
-      if (!hasTrackerService) {
-        toast.error('Device does not have the required soccer tracker service');
+      if (!hasService) {
+        toast.error('Device does not have the required tracker service');
         throw new Error('Missing tracker service');
       }
 
@@ -188,8 +180,8 @@ export const useBluetooth = () => {
         setTrackerData(prev => ({ ...prev, sessionTime: Math.round(sessionTime) }));
       });
     } catch (error) {
-      console.error('Failed to start notifications:', error);
-      toast.error('Failed to receive data from tracker');
+      console.error('Notification setup failed:', error);
+      toast.error('Failed to receive tracker data');
     }
   }, []);
 
@@ -214,8 +206,8 @@ export const useBluetooth = () => {
       const commandData = numbersToDataView([...new TextEncoder().encode(command)]);
       await BleClient.write(connectedDevice.deviceId, SOCCER_TRACKER_SERVICE_UUID, KICKS_CHARACTERISTIC_UUID, commandData);
     } catch (error) {
-      console.error('Failed to send command:', error);
-      toast.error('Failed to send command to tracker');
+      console.error('Command failed:', error);
+      toast.error('Failed to send command');
     }
   }, [connectedDevice]);
 

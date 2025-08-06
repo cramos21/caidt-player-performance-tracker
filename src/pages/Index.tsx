@@ -11,7 +11,6 @@ import SkillTraining from "@/components/training/SkillTraining";
 import EnduranceTraining from "@/components/training/EnduranceTraining";
 import PerformanceTest from "@/components/training/PerformanceTest";
 import BluetoothDebugger from "@/components/BluetoothDebugger";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -19,11 +18,9 @@ const Index = () => {
   const [currentSession, setCurrentSession] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showGoalsRewards, setShowGoalsRewards] = useState(false);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [showSplash, setShowSplash] = useState(true);
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [currentTrainingType, setCurrentTrainingType] = useState<string | null>(null);
-  
-  // Player data - would come from your backend
+
   const [playerData, setPlayerData] = useState({
     name: "Alex Johnson",
     position: "Midfielder",
@@ -31,18 +28,16 @@ const Index = () => {
     avatar: "/src/assets/soccer-player-avatar.jpg",
     level: "Pro",
     weeklyGoal: 5,
-    currentStreak: 3
+    currentStreak: 3,
   });
 
-  // Mock real-time data
   const [liveData, setLiveData] = useState({
     speed: 0,
     distance: 0,
     kicks: 0,
-    duration: 0
+    duration: 0,
   });
 
-  // Mock goals data
   const [goals, setGoals] = useState([
     {
       id: 1,
@@ -50,7 +45,7 @@ const Index = () => {
       target: playerData.weeklyGoal,
       current: 4,
       type: "sessions",
-      reward: "Training Badge"
+      reward: "Training Badge",
     },
     {
       id: 2,
@@ -58,7 +53,7 @@ const Index = () => {
       target: 30,
       current: 28.5,
       type: "speed",
-      reward: "Speed Demon Badge"
+      reward: "Speed Demon Badge",
     },
     {
       id: 3,
@@ -66,62 +61,55 @@ const Index = () => {
       target: 50,
       current: 32.8,
       type: "distance",
-      reward: "Marathon Runner"
-    }
+      reward: "Marathon Runner",
+    },
   ]);
 
-  // Simulate live data updates when connected
   useEffect(() => {
     let interval;
     if (isConnected && currentSession) {
       interval = setInterval(() => {
-        setLiveData(prev => ({
+        setLiveData((prev) => ({
           speed: Math.random() * 25 + 5,
-          distance: prev.distance + (Math.random() * 0.05),
+          distance: prev.distance + Math.random() * 0.05,
           kicks: prev.kicks + (Math.random() > 0.7 ? 1 : 0),
-          duration: prev.duration + 1
+          duration: prev.duration + 1,
         }));
       }, 1000);
     }
     return () => clearInterval(interval);
   }, [isConnected, currentSession]);
 
-  // Listen for navigation events from dashboard
   useEffect(() => {
-    const handleNavigateToAccount = () => setActiveTab('account');
-    const handleNavigateToGoals = () => setActiveTab('goals');
+    const handleNavigateToAccount = () => setActiveTab("account");
+    const handleNavigateToGoals = () => setActiveTab("goals");
     const handleTrackerConnected = (event: any) => {
-      console.log('Tracker connected from debug page:', event.detail);
+      console.log("Tracker connected from debug page:", event.detail);
       setIsConnected(true);
-      toast.success('Arduino connected! You can now start tracking.');
+      toast.success("Arduino connected! You can now start tracking.");
     };
-    
-    window.addEventListener('navigate-to-account', handleNavigateToAccount);
-    window.addEventListener('navigate-to-goals', handleNavigateToGoals);
-    window.addEventListener('tracker-connected', handleTrackerConnected);
-    
+
+    window.addEventListener("navigate-to-account", handleNavigateToAccount);
+    window.addEventListener("navigate-to-goals", handleNavigateToGoals);
+    window.addEventListener("tracker-connected", handleTrackerConnected);
+
     return () => {
-      window.removeEventListener('navigate-to-account', handleNavigateToAccount);
-      window.removeEventListener('navigate-to-goals', handleNavigateToGoals);
-      window.removeEventListener('tracker-connected', handleTrackerConnected);
+      window.removeEventListener("navigate-to-account", handleNavigateToAccount);
+      window.removeEventListener("navigate-to-goals", handleNavigateToGoals);
+      window.removeEventListener("tracker-connected", handleTrackerConnected);
     };
   }, []);
 
-  // Define handleStartTraining function
   const handleStartTraining = () => {
     if (!isConnected) {
-      toast.error('Please connect your tracker first');
+      toast.error("Please connect your tracker first");
       return;
     }
-    // Navigate to dashboard and trigger training start
-    setActiveTab('dashboard');
-    // Trigger countdown after a short delay to ensure dashboard is rendered
+    setActiveTab("dashboard");
     setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('start-training-countdown'));
+      window.dispatchEvent(new CustomEvent("start-training-countdown"));
     }, 100);
   };
-
-  // Removed splash screen as requested
 
   if (showProfile) {
     return (
@@ -145,18 +133,41 @@ const Index = () => {
     );
   }
 
-  // Handle training type screens
   if (currentTrainingType) {
     const handleBackToTraining = () => {
       setCurrentTrainingType(null);
-      setActiveTab('training');
+      setActiveTab("training");
     };
 
     const trainingComponents = {
-      'free-play': <FreePlayTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
-      'skill-training': <SkillTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
-      'endurance': <EnduranceTraining onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />,
-      'performance': <PerformanceTest onBack={handleBackToTraining} onStartTraining={handleStartTraining} isConnected={isConnected} />
+      "free-play": (
+        <FreePlayTraining
+          onBack={handleBackToTraining}
+          onStartTraining={handleStartTraining}
+          isConnected={isConnected}
+        />
+      ),
+      "skill-training": (
+        <SkillTraining
+          onBack={handleBackToTraining}
+          onStartTraining={handleStartTraining}
+          isConnected={isConnected}
+        />
+      ),
+      endurance: (
+        <EnduranceTraining
+          onBack={handleBackToTraining}
+          onStartTraining={handleStartTraining}
+          isConnected={isConnected}
+        />
+      ),
+      performance: (
+        <PerformanceTest
+          onBack={handleBackToTraining}
+          onStartTraining={handleStartTraining}
+          isConnected={isConnected}
+        />
+      ),
     };
 
     return (
@@ -164,12 +175,12 @@ const Index = () => {
         <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
           {trainingComponents[currentTrainingType]}
         </div>
-        <BottomNavigation 
-          activeTab={activeTab} 
+        <BottomNavigation
+          activeTab={activeTab}
           onTabChange={(tab) => {
-            setCurrentTrainingType(null); // Reset training type when navigating away
+            setCurrentTrainingType(null);
             setActiveTab(tab);
-          }} 
+          }}
         />
       </div>
     );
@@ -177,7 +188,7 @@ const Index = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'dashboard':
+      case "dashboard":
         return (
           <DashboardTab
             isConnected={isConnected}
@@ -192,13 +203,19 @@ const Index = () => {
             onShowGoals={() => setShowGoalsRewards(true)}
           />
         );
-      case 'performance':
+      case "performance":
         return <PerformanceTab liveData={liveData} currentSession={currentSession} />;
-      case 'training':
-        return <TrainingTab onStartTraining={handleStartTraining} isConnected={isConnected} onTrainingTypeSelect={setCurrentTrainingType} />;
-      case 'goals':
+      case "training":
+        return (
+          <TrainingTab
+            onStartTraining={handleStartTraining}
+            isConnected={isConnected}
+            onTrainingTypeSelect={setCurrentTrainingType}
+          />
+        );
+      case "goals":
         return <GoalsRewards goals={goals} setGoals={setGoals} />;
-      case 'account':
+      case "account":
         return <PlayerProfile playerData={playerData} setPlayerData={setPlayerData} />;
       default:
         return null;
@@ -207,10 +224,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-app-bg-from via-app-bg-via to-app-bg-to">
-      <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">
-        {renderTabContent()}
-      </div>
-      
+      <div className="px-4 pt-12 pb-6 max-w-sm mx-auto pb-32">{renderTabContent()}</div>
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
