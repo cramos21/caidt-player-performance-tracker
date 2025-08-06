@@ -10,6 +10,7 @@ import LiveSessionTracking from "@/components/LiveSessionTracking";
 
 
 import { useBluetooth } from "@/hooks/useBluetooth";
+import { mapToDashboardStats, mapToLiveSessionData } from "@/utils/dataMapping";
 import { Activity, Zap, Target, Timer, Trophy, Camera } from "lucide-react";
 
 interface DashboardTabProps {
@@ -49,15 +50,11 @@ const DashboardTab = ({
     setIsConnected(bluetoothConnected);
   }, [bluetoothConnected, setIsConnected]);
 
-  // Update live data when tracker data changes
+  // Update live data when tracker data changes - now using proper mapping
   useEffect(() => {
     if (bluetoothConnected && trackerData) {
-      setLiveData({
-        speed: trackerData.speed,
-        distance: trackerData.distance,
-        kicks: trackerData.kicks,
-        duration: trackerData.sessionTime * 60 // Convert minutes to seconds
-      });
+      const mappedLiveData = mapToLiveSessionData(trackerData);
+      setLiveData(mappedLiveData);
     }
   }, [trackerData, bluetoothConnected, setLiveData]);
 
@@ -73,14 +70,12 @@ const DashboardTab = ({
     return () => window.removeEventListener('start-training-countdown', handleStartTraining);
   }, [bluetoothConnected]);
 
-  // Today's summary stats
-  const todayStats = {
-    sessionsCompleted: lastSessionData ? 1 : (currentSession ? 1 : 0),
-    totalDistance: lastSessionData?.distance || liveData.distance || 2.3,
-    avgSpeed: lastSessionData?.maxSpeed || 18.5,
-    totalKicks: lastSessionData?.kicks || liveData.kicks || 34,
-    caloriesBurned: lastSessionData ? Math.floor(lastSessionData.duration * 4.5) : 245
-  };
+  // Today's summary stats - now properly mapped from Arduino data
+  const todayStats = mapToDashboardStats(
+    trackerData, 
+    lastSessionData, 
+    !!currentSession
+  );
 
   const startCountdown = () => {
     console.log("Starting countdown...");

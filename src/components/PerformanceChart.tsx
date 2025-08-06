@@ -2,8 +2,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PerformanceMetrics } from "@/utils/dataMapping";
 
-const PerformanceChart = () => {
+interface PerformanceChartProps {
+  performanceMetrics?: PerformanceMetrics;
+}
+
+const PerformanceChart = ({ performanceMetrics }: PerformanceChartProps) => {
   // Mock data for the last 7 days
   const weeklyData = [
     { day: "Mon", speed: 22.5, distance: 8.2, kicks: 45 },
