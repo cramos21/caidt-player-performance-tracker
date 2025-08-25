@@ -1,8 +1,16 @@
-// src/capacitor/BluetoothLe.ts
 import { Capacitor, registerPlugin } from '@capacitor/core';
 
-export interface SensorData { kicks: number; distance: number; maxSpeed: number; time: number; }
-export interface BLEDevice { deviceId: string; name: string; rssi?: number; }
+export interface SensorData {
+  kicks: number;
+  distance: number;
+  maxSpeed: number;
+  time: number;
+}
+export interface BLEDevice {
+  deviceId: string;
+  name: string;
+  rssi?: number;
+}
 type ListenerHandle = { remove: () => Promise<void> };
 
 export interface BluetoothLePlugin {
@@ -11,6 +19,7 @@ export interface BluetoothLePlugin {
   stopLEScan(): Promise<{ status: string }>;
   connect(options: { deviceId: string }): Promise<{ connected: boolean }>;
   getServices(): Promise<{ servicesRequested: boolean }>;
+
   addListener(eventName: 'scanResult', listenerFunc: (device: BLEDevice) => void): Promise<ListenerHandle>;
   addListener(eventName: 'connected', listenerFunc: (data: { deviceId: string }) => void): Promise<ListenerHandle>;
   addListener(eventName: 'servicesDiscovered', listenerFunc: (data: { deviceId: string; serviceCount: number }) => void): Promise<ListenerHandle>;
@@ -18,6 +27,10 @@ export interface BluetoothLePlugin {
   addListener(eventName: 'scanStarted' | 'scanStopped', listenerFunc: () => void): Promise<ListenerHandle>;
   addListener(eventName: 'onSensorData', listenerFunc: (data: SensorData) => void): Promise<ListenerHandle>;
 }
+
+/* =========================
+   Web stub (browser only)
+   ========================= */
 
 type ListenerMap = {
   scanResult?: Array<(d: BLEDevice) => void>;
@@ -31,12 +44,17 @@ type ListenerMap = {
 const L: ListenerMap = {};
 const on = <K extends keyof ListenerMap>(ev: K, cb: NonNullable<ListenerMap[K]>[number]): ListenerHandle => {
   (L[ev] ||= []).push(cb as any);
-  return { remove: async () => {
-    const arr = L[ev]; if (!arr) return;
-    const i = arr.indexOf(cb as any); if (i >= 0) arr.splice(i, 1);
-  }};
+  return {
+    remove: async () => {
+      const arr = L[ev]; if (!arr) return;
+      const i = arr.indexOf(cb as any);
+      if (i >= 0) arr.splice(i, 1);
+    }
+  };
 };
-const emit = <K extends keyof ListenerMap>(ev: K, payload?: any) => (L[ev] || []).forEach(fn => (fn as any)(payload));
+const emit = <K extends keyof ListenerMap>(ev: K, payload?: any) => {
+  (L[ev] || []).forEach(fn => (fn as any)(payload));
+};
 
 let bufferedScan: BLEDevice[] = [];
 let lastDevice: BLEDevice | null = null;
@@ -59,20 +77,28 @@ const startFakeStream = () => {
     maxSpeed = Math.max(maxSpeed, speed);
     distance += speed;
     if (Math.random() < 0.3) kicks += 1;
-    emit('onSensorData', { kicks, distance: +distance.toFixed(2), maxSpeed: +maxSpeed.toFixed(2), time: secs });
+    emit('onSensorData', {
+      kicks,
+      distance: +distance.toFixed(2),
+      maxSpeed: +maxSpeed.toFixed(2),
+      time: secs,
+    });
   }, 1000);
 };
 
 const WebStub: BluetoothLePlugin = {
-  async initialize() { console.log('[WEB] BluetoothLe stub'); return { initialized: true }; },
+  async initialize() { return { initialized: true }; },
 
   async requestLEScan() {
     emit('scanStarted');
-    setTimeout(() => {
-      const devs = mkDevices();
-      bufferedScan = devs; lastDevice = devs[0];
-      devs.forEach(d => emit('scanResult', d));
-    }, 400);
+
+    // Emit devices immediately and again soon after
+    const devs = mkDevices();
+    bufferedScan = devs;
+    lastDevice = devs[0];
+    devs.forEach(d => emit('scanResult', d));
+    setTimeout(() => devs.forEach(d => emit('scanResult', d)), 400);
+
     setTimeout(() => emit('scanStopped'), 1200);
 
     clearTimeout(autoConnectTimer);
@@ -106,12 +132,17 @@ const WebStub: BluetoothLePlugin = {
 
   async addListener(eventName: any, listenerFunc: any) {
     const handle = on(eventName as keyof ListenerMap, listenerFunc);
-    if (eventName === 'scanResult' && bufferedScan.length) bufferedScan.forEach(d => listenerFunc(d));
+    if (eventName === 'scanResult' && bufferedScan.length) {
+      bufferedScan.forEach(d => listenerFunc(d)); // replay for late subscribers
+    }
     return handle;
   },
 };
 
-// Export: real native on iOS (older wrapper name), stub on web
+/* =========================
+   Export: native on iOS, stub on web
+   NOTE: this wrapper’s native name is 'SoccerBluetooth'
+   ========================= */
 const BluetoothLe =
   Capacitor.getPlatform() === 'web'
     ? WebStub
