@@ -1,18 +1,8 @@
 // src/BluetoothLe.ts
 import { Capacitor, registerPlugin } from '@capacitor/core';
 
-export interface SensorData {
-  kicks: number;
-  distance: number;
-  maxSpeed: number;
-  time: number;
-}
-
-export interface BLEDevice {
-  deviceId: string;
-  name: string;
-  rssi?: number;
-}
+export interface SensorData { kicks: number; distance: number; maxSpeed: number; time: number; }
+export interface BLEDevice { deviceId: string; name: string; rssi?: number; }
 
 export interface BluetoothLePlugin {
   initialize(): Promise<{ initialized: boolean }>;
@@ -50,33 +40,48 @@ const emit = <K extends keyof ListenerMap>(ev: K, payload?: Parameters<NonNullab
   (listeners[ev] || []).forEach(fn => (fn as any)(payload));
 };
 
+let lastDevice: BLEDevice | null = null;
+let bufferedScanResults: BLEDevice[] = [];
+let dataTimer: any = null;
+
 const WebStub: BluetoothLePlugin = {
   async initialize() { return { initialized: true }; },
 
   async requestLEScan() {
     emit('scanStarted');
-    // Simulate finding one device, then stop scan
+
+    // Simulate finding a device shortly after
     setTimeout(() => {
-      emit('scanResult', { deviceId: 'WEB-DEMO', name: 'Soccer Tracker (Web Demo)', rssi: -55 });
+      lastDevice = { deviceId: 'WEB-DEMO', name: 'Soccer Tracker (Web Demo)', rssi: -55 };
+      bufferedScanResults = [lastDevice];
+      emit('scanResult', lastDevice!);
       emit('scanStopped');
-    }, 700);
+    }, 400);
+
+    // Return status (some apps look only at events)
     return { status: 'ok' };
   },
 
-  async stopLEScan() { emit('scanStopped'); return { status: 'ok' }; },
+  async stopLEScan() {
+    emit('scanStopped');
+    return { status: 'ok' };
+  },
 
   async connect({ deviceId }) {
-    // Pretend we connected
-    setTimeout(() => {
-      emit('connected', { deviceId });
-      emit('servicesDiscovered', { deviceId, serviceCount: 1 });
+    const id = deviceId || lastDevice?.deviceId || 'WEB-DEMO';
 
-      // Stream fake sensor data every second
+    // Pretend connection + service discovery
+    setTimeout(() => {
+      emit('connected', { deviceId: id });
+      emit('servicesDiscovered', { deviceId: id, serviceCount: 1 });
+
+      // Start streaming fake sensor data every second
+      if (dataTimer) clearInterval(dataTimer);
       let kicks = 0, distance = 0, maxSpeed = 0;
-      const start = Date.now();
-      setInterval(() => {
-        const t = (Date.now() - start) / 1000;
-        const speed = 3 + Math.random() * 4;       // 3–7 m/s
+      const t0 = Date.now();
+      dataTimer = setInterval(() => {
+        const secs = Math.round((Date.now() - t0) / 1000);
+        const speed = 3 + Math.random() * 4; // 3–7 m/s
         maxSpeed = Math.max(maxSpeed, speed);
         distance += speed;
         if (Math.random() < 0.3) kicks += 1;
@@ -85,10 +90,10 @@ const WebStub: BluetoothLePlugin = {
           kicks,
           distance: Number(distance.toFixed(2)),
           maxSpeed: Number(maxSpeed.toFixed(2)),
-          time: Math.round(t),
+          time: secs,
         });
       }, 1000);
-    }, 300);
+    }, 250);
 
     return { connected: true };
   },
@@ -97,10 +102,15 @@ const WebStub: BluetoothLePlugin = {
 
   async addListener(eventName: any, listenerFunc: any) {
     on(eventName as keyof ListenerMap, listenerFunc);
+
+    // If the UI subscribes AFTER scan finished, replay buffered results so it still sees a device.
+    if (eventName === 'scanResult' && bufferedScanResults.length) {
+      for (const d of bufferedScanResults) listenerFunc(d);
+    }
   },
 };
 
-// iPhone/iPad use the real native plugin; web uses the stub.
+// Use real native plugin on iOS; stub on web.
 const SoccerBluetooth =
   Capacitor.getPlatform() === 'web'
     ? WebStub
