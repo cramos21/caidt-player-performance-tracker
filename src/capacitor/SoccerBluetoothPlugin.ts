@@ -4,6 +4,9 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
 export interface SensorData { kicks: number; distance: number; maxSpeed: number; time: number; }
 export interface BLEDevice { deviceId: string; name: string; rssi?: number; }
 
+// Capacitor-style listener handle
+type ListenerHandle = { remove: () => Promise<void> };
+
 export interface SoccerBluetoothPlugin {
   initialize(): Promise<{ initialized: boolean }>;
   requestLEScan(): Promise<{ status: string }>;
@@ -11,16 +14,16 @@ export interface SoccerBluetoothPlugin {
   connect(options: { deviceId: string }): Promise<{ connected: boolean }>;
   getServices(): Promise<{ servicesRequested: boolean }>;
 
-  addListener(eventName: 'scanResult', listenerFunc: (device: BLEDevice) => void): Promise<void>;
-  addListener(eventName: 'connected', listenerFunc: (data: { deviceId: string }) => void): Promise<void>;
-  addListener(eventName: 'servicesDiscovered', listenerFunc: (data: { deviceId: string; serviceCount: number }) => void): Promise<void>;
-  addListener(eventName: 'bluetoothDisabled', listenerFunc: (data: { state: string }) => void): Promise<void>;
-  addListener(eventName: 'scanStarted' | 'scanStopped', listenerFunc: () => void): Promise<void>;
-  addListener(eventName: 'onSensorData', listenerFunc: (data: SensorData) => void): Promise<void>;
+  // return a handle (some code calls .remove())
+  addListener(eventName: 'scanResult', listenerFunc: (device: BLEDevice) => void): Promise<ListenerHandle>;
+  addListener(eventName: 'connected', listenerFunc: (data: { deviceId: string }) => void): Promise<ListenerHandle>;
+  addListener(eventName: 'servicesDiscovered', listenerFunc: (data: { deviceId: string; serviceCount: number }) => void): Promise<ListenerHandle>;
+  addListener(eventName: 'bluetoothDisabled', listenerFunc: (data: { state: string }) => void): Promise<ListenerHandle>;
+  addListener(eventName: 'scanStarted' | 'scanStopped', listenerFunc: () => void): Promise<ListenerHandle>;
+  addListener(eventName: 'onSensorData', listenerFunc: (data: SensorData) => void): Promise<ListenerHandle>;
 }
 
 /* ---------- Web stub (browser only) ---------- */
-
 type ListenerMap = {
   scanResult?: Array<(d: BLEDevice) => void>;
   connected?: Array<(d: { deviceId: string }) => void>;
@@ -30,14 +33,17 @@ type ListenerMap = {
   scanStopped?: Array<() => void>;
   onSensorData?: Array<(d: SensorData) => void>;
 };
-
-const listeners: ListenerMap = {};
-const on = <K extends keyof ListenerMap>(ev: K, cb: NonNullable<ListenerMap[K]>[number]) => {
-  (listeners[ev] ||= []).push(cb as any);
+const L: ListenerMap = {};
+const on = <K extends keyof ListenerMap>(ev: K, cb: NonNullable<ListenerMap[K]>[number]): ListenerHandle => {
+  (L[ev] ||= []).push(cb as any);
+  return {
+    remove: async () => {
+      const arr = L[ev]; if (!arr) return;
+      const i = arr.indexOf(cb as any); if (i >= 0) arr.splice(i, 1);
+    }
+  };
 };
-const emit = <K extends keyof ListenerMap>(ev: K, payload?: Parameters<NonNullable<ListenerMap[K]>[number]>[0]) => {
-  (listeners[ev] || []).forEach(fn => (fn as any)(payload));
-};
+const emit = <K extends keyof ListenerMap>(ev: K, payload?: any) => (L[ev] || []).forEach(fn => (fn as any)(payload));
 
 let bufferedScan: BLEDevice[] = [];
 let lastDevice: BLEDevice | null = null;
@@ -45,7 +51,7 @@ let dataTimer: any = null;
 let connectedOnce = false;
 let autoConnectTimer: any = null;
 
-const makeDevices = (): BLEDevice[] => ([
+const mkDevices = (): BLEDevice[] => ([
   { deviceId: 'WEB-DEMO-1', name: 'Arduino Nano 33 BLE Sense', rssi: -40 },
   { deviceId: 'WEB-DEMO-2', name: 'Soccer Tracker', rssi: -55 },
 ]);
@@ -60,33 +66,25 @@ const startFakeStream = () => {
     maxSpeed = Math.max(maxSpeed, speed);
     distance += speed;
     if (Math.random() < 0.3) kicks += 1;
-    emit('onSensorData', {
-      kicks,
-      distance: Number(distance.toFixed(2)),
-      maxSpeed: Number(maxSpeed.toFixed(2)),
-      time: secs,
-    });
+    emit('onSensorData', { kicks, distance: +distance.toFixed(2), maxSpeed: +maxSpeed.toFixed(2), time: secs });
   }, 1000);
 };
 
 const WebStub: SoccerBluetoothPlugin = {
-  async initialize() { return { initialized: true }; },
+  async initialize() { console.log('[WEB] SoccerBluetoothPlugin stub'); return { initialized: true }; },
 
   async requestLEScan() {
     emit('scanStarted');
 
-    // Emit fake devices shortly after, so UIs listening for scanResult see them
     setTimeout(() => {
-      const devs = makeDevices();
+      const devs = mkDevices();
       bufferedScan = devs;
       lastDevice = devs[0];
       devs.forEach(d => emit('scanResult', d));
-    }, 600);
+    }, 400);
 
-    // Some UIs wait for scanStopped before proceeding
-    setTimeout(() => emit('scanStopped'), 3000);
+    setTimeout(() => emit('scanStopped'), 1200);
 
-    // If UI never calls connect(), auto-connect so data appears
     clearTimeout(autoConnectTimer);
     autoConnectTimer = setTimeout(() => {
       if (connectedOnce) return;
@@ -95,7 +93,7 @@ const WebStub: SoccerBluetoothPlugin = {
       emit('connected', { deviceId: id });
       emit('servicesDiscovered', { deviceId: id, serviceCount: 1 });
       startFakeStream();
-    }, 1800);
+    }, 1500);
 
     return { status: 'ok' };
   },
@@ -117,15 +115,13 @@ const WebStub: SoccerBluetoothPlugin = {
   async getServices() { return { servicesRequested: true }; },
 
   async addListener(eventName: any, listenerFunc: any) {
-    on(eventName as keyof ListenerMap, listenerFunc);
-    if (eventName === 'scanResult' && bufferedScan.length) {
-      bufferedScan.forEach(d => listenerFunc(d));
-    }
+    const handle = on(eventName as keyof ListenerMap, listenerFunc);
+    if (eventName === 'scanResult' && bufferedScan.length) bufferedScan.forEach(d => listenerFunc(d));
+    return handle;
   },
 };
 
 /* ---------- Export: real plugin on iOS, stub on web ---------- */
-
 const SoccerBluetooth =
   Capacitor.getPlatform() === 'web'
     ? WebStub
