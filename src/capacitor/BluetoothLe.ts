@@ -1,6 +1,7 @@
-// src/capacitor/BluetoothLe.ts  (or your existing path)
+// src/capacitor/BluetoothLe.ts
 import { Capacitor, registerPlugin } from '@capacitor/core';
 
+// ---- types (unchanged) ----
 export interface SensorData { kicks: number; distance: number; maxSpeed: number; time: number; }
 export interface BLEDevice { deviceId: string; name: string; rssi?: number; }
 
@@ -10,6 +11,7 @@ export interface BluetoothLePlugin {
   stopLEScan(): Promise<{ status: string }>;
   connect(options: { deviceId: string }): Promise<{ connected: boolean }>;
   getServices(): Promise<{ servicesRequested: boolean }>;
+
   addListener(eventName: 'scanResult', listenerFunc: (device: BLEDevice) => void): Promise<void>;
   addListener(eventName: 'connected', listenerFunc: (data: { deviceId: string }) => void): Promise<void>;
   addListener(eventName: 'servicesDiscovered', listenerFunc: (data: { deviceId: string; serviceCount: number }) => void): Promise<void>;
@@ -18,7 +20,7 @@ export interface BluetoothLePlugin {
   addListener(eventName: 'onSensorData', listenerFunc: (data: SensorData) => void): Promise<void>;
 }
 
-// ===== Web stub (only used when running in a browser) =====
+// ---- web stub helpers ----
 type ListenerMap = {
   scanResult?: Array<(d: BLEDevice) => void>;
   connected?: Array<(d: { deviceId: string }) => void>;
@@ -28,11 +30,12 @@ type ListenerMap = {
   scanStopped?: Array<() => void>;
   onSensorData?: Array<(d: SensorData) => void>;
 };
+
 const listeners: ListenerMap = {};
 const on = <K extends keyof ListenerMap>(ev: K, cb: NonNullable<ListenerMap[K]>[number]) => {
   (listeners[ev] ||= []).push(cb as any);
 };
-const emit = <K extends keyof ListenerMap>(ev: K, payload?: Parameters<NonNullable<ListenerMap[K]>[number]>[0]) => {
+const emit = <K extends keyof ListenerMap>(ev: K, payload?: any) => {
   (listeners[ev] || []).forEach(fn => (fn as any)(payload));
 };
 
@@ -66,29 +69,35 @@ const startFakeStream = () => {
   }, 1000);
 };
 
+// ---- web stub implementation ----
 const WebStub: BluetoothLePlugin = {
-  async initialize() { return { initialized: true }; },
+  async initialize() {
+    if (typeof window !== 'undefined') {
+      // quick debug marker in browser console
+      console.log('[WEB] BluetoothLe stub active');
+    }
+    return { initialized: true };
+  },
 
   async requestLEScan() {
     emit('scanStarted');
 
-    // Give the UI a moment to set up listeners, then emit results
+    // Emit fake devices shortly after, so listeners see them
     setTimeout(() => {
       const devs = makeDevices();
       bufferedScan = devs;
       lastDevice = devs[0];
-      // Emit both so any filter (Arduino/Soccer) matches
       devs.forEach(d => emit('scanResult', d));
     }, 600);
 
-    // Stop scan a bit later so UIs that wait for scanStopped can proceed
+    // Some flows wait for scanStopped
     setTimeout(() => emit('scanStopped'), 3000);
 
-    // Auto-connect fallback: if UI never calls connect(), simulate it
+    // If UI never calls connect(), auto-connect so data appears
     clearTimeout(autoConnectTimer);
     autoConnectTimer = setTimeout(() => {
       if (connectedOnce) return;
-      const id = (lastDevice?.deviceId) || 'WEB-DEMO-1';
+      const id = lastDevice?.deviceId || 'WEB-DEMO-1';
       connectedOnce = true;
       emit('connected', { deviceId: id });
       emit('servicesDiscovered', { deviceId: id, serviceCount: 1 });
@@ -116,17 +125,18 @@ const WebStub: BluetoothLePlugin = {
 
   async addListener(eventName: any, listenerFunc: any) {
     on(eventName as keyof ListenerMap, listenerFunc);
-    // If they subscribe after scan, replay the buffered devices
+    // Late subscribers still get devices
     if (eventName === 'scanResult' && bufferedScan.length) {
       bufferedScan.forEach(d => listenerFunc(d));
     }
   },
 };
 
-// Use the real native plugin on iOS; stub on web
-const SoccerBluetooth =
+// ---- export: real plugin on iOS, stub on web ----
+// NOTE: native name here is 'SoccerBluetooth' (older wrapper)
+const BluetoothLe =
   Capacitor.getPlatform() === 'web'
     ? WebStub
     : registerPlugin<BluetoothLePlugin>('SoccerBluetooth');
 
-export default SoccerBluetooth;
+export default BluetoothLe;
