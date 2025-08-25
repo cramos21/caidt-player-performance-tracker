@@ -15,7 +15,9 @@ import LiveSessionTracking from "@/components/LiveSessionTracking";
 import TrainingComplete from "@/components/TrainingComplete";
 import FullscreenOverlay from "@/components/FullscreenOverlay";
 import { toast } from "sonner";
-import { BluetoothLe } from "@capacitor-community/bluetooth-le";
+
+// IMPORTANT: use our wrapper (native on iOS, stub on web)
+import { BluetoothLe } from "@/capacitor/BluetoothLe";
 
 /** ===== UUIDs (lowercased) ===== */
 const TRACKER_SERVICE = "12345678-1234-1234-1234-123456789abc".toLowerCase();
@@ -75,7 +77,7 @@ const Index = () => {
     name: "Alex Johnson",
     position: "Midfielder",
     team: "FC Thunder",
-    avatar: "/src/assets/soccer-player-avatar.jpg",
+    avatar: "/src/assets/soccer-player-avatar.jpg", // ok to leave; 404 in web is cosmetic
     level: "Pro",
     weeklyGoal: 5,
     currentStreak: 3,
@@ -164,7 +166,7 @@ const Index = () => {
 
     const readChar = async (deviceId: string, ch: string) => {
       try {
-        const res: any = await BluetoothLe.read({ deviceId, service: TRACKER_SERVICE, characteristic: ch } as any);
+        const res: any = await (BluetoothLe as any).read({ deviceId, service: TRACKER_SERVICE, characteristic: ch });
         return hexToUint32LE(res?.value || "");
       } catch {
         return undefined;

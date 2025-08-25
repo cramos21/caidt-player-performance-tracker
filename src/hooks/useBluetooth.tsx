@@ -10,7 +10,9 @@ import React, {
   useState,
 } from "react";
 import type { PluginListenerHandle } from "@capacitor/core";
-import { BluetoothLe } from "@capacitor-community/bluetooth-le";
+
+// IMPORTANT: use our wrapper (native on iOS, stub on web)
+import { BluetoothLe } from "@/capacitor/BluetoothLe";
 
 /** ====== Tracker UUIDs (keep lowercased) ====== */
 const TRACKER_SERVICE = "12345678-1234-1234-1234-123456789abc";
@@ -74,6 +76,27 @@ type BluetoothContextType = {
 
 const BluetoothContext = createContext<BluetoothContextType | null>(null);
 
+/** Helper: add listener for several possible event names (native vs stub) */
+async function addAnyListener(
+  names: string[],
+  cb: (evt: any) => void
+): Promise<PluginListenerHandle> {
+  const handles: PluginListenerHandle[] = [];
+  for (const n of names) {
+    try {
+      const h = await (BluetoothLe as any).addListener(n, cb);
+      if (h && typeof h.remove === "function") handles.push(h);
+    } catch {
+      // event name not supported — ignore
+    }
+  }
+  return {
+    remove: async () => {
+      await Promise.all(handles.map((h) => h?.remove?.()));
+    },
+  } as PluginListenerHandle;
+}
+
 /** ====== Provider ====== */
 export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isScanning, setIsScanning]     = useState(false);
@@ -103,7 +126,7 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const ensureInitialized = useCallback(async () => {
     if (initializedRef.current) return;
     try {
-      await BluetoothLe.initialize();
+      await (BluetoothLe as any).initialize?.();
       initializedRef.current = true;
       log("✅ BLE initialized");
     } catch (e) {
@@ -125,48 +148,52 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const localMap = new Map<string, ScanDevice>();
 
       try { await scanSubRef.current?.remove(); } catch {}
-      scanSubRef.current = await BluetoothLe.addListener("onScanResult", (res: any) => {
-        const dev: ScanDevice = {
-          deviceId: res?.device?.deviceId ?? res?.deviceId,
-          name: res?.device?.name ?? res?.name,
-          localName: res?.localName,
-          rssi: res?.rssi,
-          uuids: res?.uuids?.map((u: string) => u?.toLowerCase?.()),
-        };
-        if (!dev.deviceId) return;
+      // Listen to both native & stub event names
+      scanSubRef.current = await addAnyListener(
+        ["onScanResult", "scanResult"],
+        (res: any) => {
+          const dev: ScanDevice = {
+            deviceId: res?.device?.deviceId ?? res?.deviceId,
+            name: res?.device?.name ?? res?.name,
+            localName: res?.localName,
+            rssi: res?.rssi,
+            uuids: res?.uuids?.map((u: string) => u?.toLowerCase?.()),
+          };
+          if (!dev.deviceId) return;
 
-        const prev = localMap.get(dev.deviceId) || {};
-        localMap.set(dev.deviceId, { ...prev, ...dev });
+          const prev = localMap.get(dev.deviceId) || {};
+          localMap.set(dev.deviceId, { ...prev, ...dev });
 
-        setDevices((prevState) => {
-          const idx = prevState.findIndex((p) => p.deviceId === dev.deviceId);
-          if (idx >= 0) {
-            const copy = prevState.slice();
-            copy[idx] = { ...copy[idx], ...dev };
-            return copy;
+          setDevices((prevState) => {
+            const idx = prevState.findIndex((p) => p.deviceId === dev.deviceId);
+            if (idx >= 0) {
+              const copy = prevState.slice();
+              copy[idx = idx] = { ...copy[idx], ...dev };
+              return copy;
+            }
+            return [...prevState, dev];
+          });
+
+          if (isTrackerAdvertising(dev)) {
+            log(`📱 Found tracker: ${dev.name ?? dev.localName ?? "Unknown"} (${dev.deviceId.slice(0, 8)}…)`);
           }
-          return [...prevState, dev];
-        });
-
-        if (isTrackerAdvertising(dev)) {
-          log(`📱 Found tracker: ${dev.name ?? dev.localName ?? "Unknown"} (${dev.deviceId.slice(0, 8)}…)`);
         }
-      });
+      );
 
       setIsScanning(true);
       log("🔍 Starting BLE scan…");
       try {
-        await BluetoothLe.requestLEScan({
-          services: [TRACKER_SERVICE], // ignored by iOS, fine on Android
+        await (BluetoothLe as any).requestLEScan?.({
+          services: [TRACKER_SERVICE],
           allowDuplicates: true,
-        } as any);
+        });
       } catch (e) {
         log(`❗ requestLEScan error: ${String(e)}`);
       }
 
       await new Promise<void>((resolve) => {
         setTimeout(async () => {
-          try { await BluetoothLe.stopLEScan(); } catch {}
+          try { await (BluetoothLe as any).stopLEScan?.(); } catch {}
           setIsScanning(false);
           try { await scanSubRef.current?.remove(); } catch {}
           scanSubRef.current = null;
@@ -199,36 +226,43 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const attachNotificationListener = useCallback(async () => {
     try { await readSubRef.current?.remove(); } catch {}
-    readSubRef.current = await BluetoothLe.addListener("onRead", (evt: any) => {
-      const hex = toHex(evt?.value);
-      handleStatusNotification(hex);
+    // Support multiple event names from different implementations
+    readSubRef.current = await addAnyListener(
+      ["onRead", "onNotify", "onCharacteristicValueChanged"],
+      (evt: any) => {
+        const hex = toHex(evt?.value);
+        handleStatusNotification(hex);
 
-      if (hex) {
-        window.dispatchEvent(
-          new CustomEvent("tracker-data", {
-            detail: {
-              hex,
-              characteristic: String(evt?.characteristic || "").toLowerCase(),
-              service: String(evt?.service || "").toLowerCase(),
-            },
-          })
-        );
+        if (hex) {
+          window.dispatchEvent(
+            new CustomEvent("tracker-data", {
+              detail: {
+                hex,
+                characteristic: String(evt?.characteristic || "").toLowerCase(),
+                service: String(evt?.service || "").toLowerCase(),
+              },
+            })
+          );
+        }
       }
-    });
+    );
   }, [isReady]);
 
   const attachDisconnectListener = useCallback(async () => {
     try { await discSubRef.current?.remove(); } catch {}
-    discSubRef.current = await BluetoothLe.addListener("onDisconnected", (evt: any) => {
-      const id = evt?.deviceId;
-      if (id && id === connectedIdRef.current) {
-        log("🔌 Disconnected by OS/peripheral");
-        connectedIdRef.current = null;
-        setIsConnected(false);
-        setIsReady(false);
-        setConnected(null);
+    discSubRef.current = await addAnyListener(
+      ["onDisconnected", "onDisconnect"],
+      (evt: any) => {
+        const id = evt?.deviceId;
+        if (id && id === connectedIdRef.current) {
+          log("🔌 Disconnected by OS/peripheral");
+          connectedIdRef.current = null;
+          setIsConnected(false);
+          setIsReady(false);
+          setConnected(null);
+        }
       }
-    });
+    );
   }, []);
 
   /** ====== Connect (robust, discovery-first) ====== */
@@ -237,7 +271,6 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (connectedIdRef.current) {
       log("🔗 Already connected — skipping connect()");
       setIsConnected(true);
-      // IMPORTANT: do NOT dispatch 'tracker-connected' here to avoid duplicate toasts.
       return;
     }
     if (connectingRef.current) {
@@ -247,7 +280,7 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     connectingRef.current = true;
 
     await ensureInitialized();
-    try { await BluetoothLe.stopLEScan(); } catch {}
+    try { await (BluetoothLe as any).stopLEScan?.(); } catch {}
 
     let deviceId = deviceIdParam || connectedIdRef.current || getLastDevice() || undefined;
 
@@ -271,7 +304,7 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const tryConnect = async () => {
       log(`🔗 Connecting to ${deviceId}…`);
-      await BluetoothLe.connect({ deviceId } as any);
+      await (BluetoothLe as any).connect({ deviceId });
     };
 
     try {
@@ -300,7 +333,7 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setConnected(foundMeta);
 
     try {
-      const svc = await BluetoothLe.getServices({ deviceId } as any);
+      const svc = await (BluetoothLe as any).getServices?.({ deviceId });
       log(`🧭 Services: ${JSON.stringify(svc?.services?.map((s: any) => s.uuid)?.slice?.(0, 3))}`);
     } catch {}
 
@@ -309,11 +342,11 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const startNotif = async (characteristic: string) => {
       try {
-        await BluetoothLe.startNotifications({
+        await (BluetoothLe as any).startNotifications?.({
           deviceId,
           service: TRACKER_SERVICE,
           characteristic,
-        } as any);
+        });
         log(`🔔 Notifications ON for ${characteristic.slice(-4)}`);
       } catch (err) {
         log(`❗ startNotifications ${characteristic.slice(-4)} failed: ${String(err)}`);
@@ -345,7 +378,7 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           await (BluetoothLe as any).stopNotifications?.({ deviceId: id, service: TRACKER_SERVICE, characteristic: c });
         } catch {}
       }
-      await BluetoothLe.disconnect({ deviceId: id } as any);
+      await (BluetoothLe as any).disconnect?.({ deviceId: id });
     } finally {
       connectedIdRef.current = null;
       setIsConnected(false);
@@ -373,7 +406,7 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const bytes = toBytes(data);
     try {
-      await (BluetoothLe as any).write({ deviceId: id, service: TRACKER_SERVICE, characteristic: CHAR_COMMAND, value: bytes });
+      await (BluetoothLe as any).write?.({ deviceId: id, service: TRACKER_SERVICE, characteristic: CHAR_COMMAND, value: bytes });
       log(`📤 Wrote ${bytes.length}B to CMD`);
     } catch (e) {
       try {
