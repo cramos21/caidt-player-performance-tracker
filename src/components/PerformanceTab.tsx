@@ -2,7 +2,6 @@ import MetricsOverview from "@/components/MetricsOverview";
 import PerformanceChart from "@/components/PerformanceChart";
 import RecentActivity from "@/components/RecentActivity";
 import { mapToPerformanceMetrics } from "@/utils/dataMapping";
-import { useBluetooth } from "@/hooks/useBluetooth";
 
 interface PerformanceTabProps {
   liveData: any;
@@ -10,27 +9,28 @@ interface PerformanceTabProps {
 }
 
 const PerformanceTab = ({ liveData, currentSession }: PerformanceTabProps) => {
-  const { trackerData, isConnected } = useBluetooth();
-  
-  // Get performance metrics with proper Arduino data mapping
+  // Build performance metrics from the current session's live data.
+  // (If you later add historical/session-peaks, pass them into the 2nd/3rd args.)
   const performanceMetrics = mapToPerformanceMetrics(
-    isConnected ? trackerData : null,
-    {}, // Historical data would come from your database
-    {} // Session peaks would be tracked during active sessions
+    currentSession ? liveData : null,
+    {}, // historical
+    {}  // session peaks
   );
-  
+
   return (
     <div className="space-y-6 pb-24">
-      {/* Title */}
-      <div className="pt-2">
+      {/* Title — match top padding used elsewhere */}
+      <div className="pt-6">
         <h1 className="text-2xl font-bold text-foreground">Performance</h1>
-        <p className="text-sm text-muted-foreground mt-2">Track your progress and analyze your game</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Track your progress and analyze your game
+        </p>
       </div>
-      
-      {/* Metrics Overview - Now uses properly mapped Arduino data */}
+
+      {/* Metrics Overview — show only while a session is active */}
       <MetricsOverview liveData={currentSession ? liveData : null} />
 
-      {/* Performance Chart - Enhanced with real Arduino data context */}
+      {/* Performance Chart */}
       <PerformanceChart performanceMetrics={performanceMetrics} />
 
       {/* Recent Activity */}

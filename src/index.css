@@ -1,10 +1,27 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Ensure the app fills the viewport and removes any default margins */
+html, body, #root { height: 100%; margin: 0; }
 
+/* === iOS crash guard: prevent the native edit/selection menu from opening in overlays === */
+* {
+  -webkit-touch-callout: none; /* iOS long-press menu */
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* Allow selection inside inputs/textareas/contenteditable */
+input, textarea, [contenteditable],
+input *, textarea *, [contenteditable] * {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ------------------------------------------------------------------ */
+/* Design tokens / theme                                               */
+/* ------------------------------------------------------------------ */
 @layer base {
   :root {
     --background: 222.2 84% 4.9%;
@@ -46,13 +63,13 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 142.1 76.2% 36.3%;
 
-    /* Custom darker blue gradient for app background */
-    --app-bg-from: 220 84% 8%; /* Darker blue */
-    --app-bg-via: 220 84% 6%; /* Even darker blue */
-    --app-bg-to: 220 84% 8%; /* Back to slightly lighter dark blue */
+    /* App background gradient (dark blues) */
+    --app-bg-from: 220 84% 8%;
+    --app-bg-via: 220 84% 6%;
+    --app-bg-to: 220 84% 8%;
 
-    /* Custom bottom navigation color - darker than card but lighter than background */
-    --bottom-nav-bg: 220 84% 9%; /* Even darker - closer to app background */
+    /* Bottom navigation background */
+    --bottom-nav-bg: 220 84% 9%;
   }
 
   .dark {
@@ -83,6 +100,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 142.1 76.2% 36.3%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 142.1 76.2% 36.3%;
@@ -92,20 +110,16 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 142.1 76.2% 36.3%;
 
-    /* Custom darker blue gradient for app background - dark mode */
-    --app-bg-from: 220 84% 8%; /* Darker blue */
-    --app-bg-via: 220 84% 6%; /* Even darker blue */
-    --app-bg-to: 220 84% 8%; /* Back to slightly lighter dark blue */
+    --app-bg-from: 220 84% 8%;
+    --app-bg-via: 220 84% 6%;
+    --app-bg-to: 220 84% 8%;
 
-    /* Custom bottom navigation color - darker than card but lighter than background */
-    --bottom-nav-bg: 220 84% 9%; /* Even darker - closer to app background */
+    --bottom-nav-bg: 220 84% 9%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
   body {
     @apply bg-background text-foreground;
@@ -114,40 +128,17 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Mobile app specific styles */
   html {
-    /* Prevent zoom on double tap */
+    /* Prevent zoom on double tap + nicer scrolling */
     touch-action: manipulation;
-    /* Prevent text selection on mobile */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  input, textarea, [contenteditable] {
-    /* Re-enable text selection for inputs */
-    -webkit-user-select: text;
-    -khtml-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
   }
 }
 
-/* Mobile-optimized styles */
+/* Mobile-optimized utilities */
 @layer utilities {
-  .mobile-container {
-    @apply px-4 sm:px-6 lg:px-8;
-  }
-  
-  .touch-target {
-    @apply min-h-[44px] min-w-[44px];
-  }
+  .mobile-container { @apply px-4 sm:px-6 lg:px-8; }
+  .touch-target { @apply min-h-[44px] min-w-[44px]; }
 
-  /* Safe area handling for mobile apps */
   .safe-area-inset {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
@@ -155,31 +146,27 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  /* Smooth scrolling for mobile */
-  .smooth-scroll {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
+  .smooth-scroll { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
 
-  /* Hide scrollbars but keep functionality */
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
 
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Mobile friendly focus states */
-  .mobile-focus:focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
-  }
+  .mobile-focus:focus-visible { @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background; }
 }
 
-/* Animation for smooth interactions */
+/* Small helper for subtle transitions */
 @layer components {
-  .smooth-transition {
-    transition: all 0.2s ease-in-out;
-  }
+  .smooth-transition { transition: all 0.2s ease-in-out; }
+}
+
+/* --- Toast offset so they appear above the bottom nav --- */
+:root {
+  /* tweak if your bottom nav height changes */
+  --bottom-nav-height: 80px;
+  --toast-bottom-offset: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
+}
+
+/* Make Sonner use the same bottom offset */
+.sonner-toaster[data-position^="bottom"] {
+  bottom: var(--toast-bottom-offset) !important;
 }

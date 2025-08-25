@@ -21,9 +21,11 @@
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
 
+    /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"],
+      "@capacitor/*": ["src/capacitor/*"]
     }
   },
   "include": ["src"]

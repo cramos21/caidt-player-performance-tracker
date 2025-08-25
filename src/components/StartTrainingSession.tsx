@@ -1,107 +1,41 @@
-import { useEffect, useState } from "react";
+// src/components/StartTrainingSession.tsx
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Play, Target, Trophy } from "lucide-react";
-import { useBluetooth } from "@/hooks/useBluetooth";
-import { Spinner } from "@/components/ui/spinner";
+import { Activity } from "lucide-react";
+import { startTrainingCountdown } from "@/lib/startTraining";
 
-interface StartTrainingSessionProps {
-  onStartCountdown: () => void;
-  onBack: () => void;
-}
+type Props = {
+  /** If false, button is disabled and shows a helper label */
+  isConnected?: boolean;
+};
 
-const StartTrainingSession = ({ onStartCountdown, onBack }: StartTrainingSessionProps) => {
-  const { isConnected, scanForDevices, connectToDevice } = useBluetooth();
-  const [isScanning, setIsScanning] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const autoConnect = async () => {
-      setIsScanning(true);
-      try {
-        const devices = await scanForDevices();
-        const tracker = devices.find((d) => d.name?.includes("Performance"));
-        if (tracker) {
-          await connectToDevice(tracker);
-        } else {
-          setError("Performance tracker not found.");
-        }
-      } catch (err) {
-        setError("Failed to scan for devices.");
-      } finally {
-        setIsScanning(false);
-      }
-    };
-
-    autoConnect();
-  }, []);
-
+export default function StartTrainingSession({ isConnected }: Props) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col items-center justify-center px-4">
-      <div className="max-w-sm w-full space-y-8">
-        <div className="text-center space-y-4">
-          <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
-            <Play className="w-10 h-10 text-primary" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground">Ready to Train?</h1>
-          {isScanning ? (
-            <p className="text-muted-foreground">Scanning for your tracker...</p>
-          ) : isConnected ? (
-            <p className="text-muted-foreground">Your tracker is connected and ready!</p>
-          ) : error ? (
-            <p className="text-red-400">{error}</p>
-          ) : (
-            <p className="text-muted-foreground">Waiting for tracker connection...</p>
-          )}
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+      <div className="flex items-center gap-3">
+        <div className="h-12 w-12 rounded-xl bg-emerald-500/15 text-emerald-400 grid place-items-center">
+          <Activity className="h-6 w-6" />
         </div>
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-foreground">
+            Start Live Training Session
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Track speed, distance, and kicks in real time.
+          </p>
+        </div>
+      </div>
 
-        {isConnected && (
-          <>
-            <Card className="bg-card/80 backdrop-blur-sm border-border">
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-lg">Today's Mission</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-                  <Target className="w-5 h-5 text-primary" />
-                  <div>
-                    <div className="font-medium text-foreground">Distance Goal</div>
-                    <div className="text-sm text-muted-foreground">Run 2.5km during training</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-                  <Trophy className="w-5 h-5 text-primary" />
-                  <div>
-                    <div className="font-medium text-foreground">Speed Challenge</div>
-                    <div className="text-sm text-muted-foreground">Beat your top speed of 28.5 km/h</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="space-y-4">
-              <Button 
-                onClick={onStartCountdown}
-                size="lg" 
-                className="w-full h-16 text-lg font-bold bg-primary hover:bg-primary/90"
-              >
-                <Play className="w-6 h-6 mr-0.5" />
-                Start Training Session
-              </Button>
-            </div>
-          </>
-        )}
-
+      <div className="mt-4">
         <Button
-          onClick={onBack}
-          variant="ghost"
-          className="w-full text-muted-foreground hover:text-foreground"
+          size="lg"
+          className="w-full"
+          disabled={isConnected === false}
+          onClick={() => startTrainingCountdown()} // <— opens the global overlay in Index.tsx
         >
-          Back to Dashboard
+          {isConnected === false ? "Connect tracker to start" : "Start"}
         </Button>
       </div>
     </div>
   );
-};
-
-export default StartTrainingSession;
+}

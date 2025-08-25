@@ -1,4 +1,3 @@
-
 import { Home, TrendingUp, Target, User, Play } from "lucide-react";
 
 interface BottomNavigationProps {
@@ -6,39 +5,41 @@ interface BottomNavigationProps {
   onTabChange: (tab: string) => void;
 }
 
-const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
-  const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'training', label: 'Training', icon: Play },
-    { id: 'performance', label: 'Performance', icon: TrendingUp },
-    { id: 'goals', label: 'Goals', icon: Target },
-    { id: 'account', label: 'Account', icon: User }
-  ];
+const tabs = [
+  { id: "dashboard", label: "Dashboard", icon: Home },
+  { id: "training", label: "Training", icon: Play },
+  { id: "performance", label: "Performance", icon: TrendingUp },
+  { id: "goals", label: "Goals", icon: Target },
+  { id: "account", label: "Account", icon: User },
+];
 
+const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-bottom-nav/95 backdrop-blur-md border-t border-border/30 safe-area-inset pb-safe shadow-lg shadow-black/20">
-      <div className="flex items-center justify-around max-w-sm mx-auto pt-2 pb-6">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          
+    <nav
+      data-bottom-nav
+      className="fixed inset-x-0 bottom-0 z-40 bg-bottom-nav/95 backdrop-blur-md border-t border-border/30"
+      // Only the iOS home-indicator safe area; NO extra pb-* anywhere else
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
+      {/* compact row; height controlled by py-2 only */}
+      <div className="mx-auto max-w-sm px-4 py-2 grid grid-cols-5 gap-1">
+        {tabs.map(({ id, label, icon: Icon }) => {
+          const isActive = activeTab === id;
           return (
             <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center py-3 px-2 touch-target transition-colors flex-1 ${
-                isActive 
-                  ? 'text-primary' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              key={id}
+              onClick={() => onTabChange(id)}
+              className={`flex flex-col items-center justify-center gap-1 rounded-md px-2 py-1 transition-colors
+                ${isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              aria-current={isActive ? "page" : undefined}
             >
-              <Icon className={`w-5 h-5 mb-1 ${isActive ? 'fill-primary/20' : ''}`} />
-              <span className="text-xs font-medium">{tab.label}</span>
+              <Icon className="w-5 h-5" />
+              <span className="text-[11px] leading-none font-medium">{label}</span>
             </button>
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 };
 

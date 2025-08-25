@@ -1,148 +1,134 @@
+// src/components/TrainingTab.tsx
+import React, { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Play, Target, Trophy, Timer, Activity } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Activity, Target, Timer, Gauge } from "lucide-react";
+import { useBluetooth } from "@/hooks/useBluetooth";
+import { toast } from "sonner";
 
-interface TrainingTabProps {
+type Props = {
   onStartTraining: () => void;
-  isConnected: boolean;
-  onTrainingTypeSelect: (type: string) => void;
-}
+  isConnected: boolean; // from Index (kept for compatibility)
+  onTrainingTypeSelect: (type: "free-play" | "skill-training" | "endurance" | "performance") => void;
+};
 
-const TrainingTab = ({ onStartTraining, isConnected, onTrainingTypeSelect }: TrainingTabProps) => {
-  const trainingTypes = [
-    {
-      id: 'free-play',
-      title: 'Free Play',
-      description: 'Practice freely and track your movements',
-      icon: Play,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10'
-    },
-    {
-      id: 'skill-training',
-      title: 'Skill Training',
-      description: 'Focused drills to improve technique',
-      icon: Target,
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/10'
-    },
-    {
-      id: 'endurance',
-      title: 'Endurance Run',
-      description: 'Build stamina with distance goals',
-      icon: Timer,
-      color: 'text-orange-400',
-      bgColor: 'bg-orange-500/10'
-    },
-    {
-      id: 'performance',
-      title: 'Performance Test',
-      description: 'Test your speed and agility',
-      icon: Trophy,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/10'
+const TrainingTab: React.FC<Props> = ({ onStartTraining, isConnected, onTrainingTypeSelect }) => {
+  // Also read BLE state from context (works even if parent prop lags a tick)
+  const { isConnected: bleConnected, connectQuick } = useBluetooth();
+  const connected = isConnected || bleConnected;
+
+  const [isBusy, setIsBusy] = useState(false);
+
+  const handleConnectClick = async () => {
+    if (connected) {
+      // Already connected — just notify global listeners so UI can update
+      try { window.dispatchEvent(new CustomEvent("tracker-connected")); } catch {}
+      return;
     }
-  ];
+    try {
+      setIsBusy(true);
+      await connectQuick();
+      // The Bluetooth provider dispatches 'tracker-connected'; Index shows the toast.
+    } catch (e: any) {
+      toast.error(
+        typeof e?.message === "string" ? e.message : "Couldn’t connect. Make sure the tracker is advertising."
+      );
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handlePrimary = () => {
+    if (connected) onStartTraining();
+    else void handleConnectClick();
+  };
+
+  const trainingTypes = useMemo(
+    () => [
+      {
+        key: "free-play" as const,
+        title: "Free Play",
+        desc: "Practice freely and track your movements",
+        Icon: Activity,
+      },
+      {
+        key: "skill-training" as const,
+        title: "Skill Training",
+        desc: "Focused drills to improve technique",
+        Icon: Target,
+      },
+      {
+        key: "endurance" as const,
+        title: "Endurance Run",
+        desc: "Build stamina with distance goals",
+        Icon: Timer,
+      },
+      {
+        key: "performance" as const,
+        title: "Performance Test",
+        desc: "Test your speed and acceleration",
+        Icon: Gauge,
+      },
+    ],
+    []
+  );
 
   return (
     <div className="space-y-6 pb-24">
-      {/* Title */}
-      <div className="pt-6">
+      {/* Title + subtitle — add extra top margin so it matches other tabs */}
+      <div className="mt-6">
         <h1 className="text-2xl font-bold text-foreground">Training</h1>
+        <p className="text-sm text-muted-foreground mt-2">
+          Connect your tracker first to start training
+        </p>
       </div>
 
       {/* Quick Start */}
-      <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
-        <CardHeader className="text-center pb-4">
-          <CardTitle className="text-lg flex items-center justify-center gap-2">
+      <Card className="bg-white/5 border-white/10">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-3 mb-3">
             <Activity className="w-5 h-5 text-primary" />
-            Quick Start
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground text-center">
-            {isConnected ? "Jump straight into training with your last session settings" : "Connect your tracker first to start training"}
+            <h2 className="text-xl font-semibold">Quick Start</h2>
+          </div>
+
+          <p className="text-sm text-muted-foreground mb-4">
+            {connected ? "Tracker connected — you're good to go." : "Connect your tracker first to start training"}
           </p>
-          {isConnected ? (
-            <Button 
-              onClick={onStartTraining}
-              size="lg" 
-              className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
-            >
-              <Play className="w-5 h-5 mr-0.5" />
-              Start Training Now
-            </Button>
-          ) : (
-            <Button 
-              size="lg" 
-              className="w-full h-14 text-lg font-bold bg-muted text-muted-foreground cursor-not-allowed"
-              disabled
-            >
-              <Play className="w-5 h-5 mr-0.5" />
-              Connect Tracker First
-            </Button>
-          )}
+
+          <Button
+            onClick={handlePrimary}
+            disabled={isBusy}
+            className="w-full h-12 text-base font-semibold"
+          >
+            {connected ? "Start Training" : isBusy ? "Connecting…" : "Connect Tracker"}
+          </Button>
         </CardContent>
       </Card>
 
       {/* Training Types */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">Training Types</h3>
-        <div className="grid gap-4">
-          {trainingTypes.map((type) => {
-            const Icon = type.icon;
-            return (
-              <Card key={type.id} className="border-border/50 bg-card/30 backdrop-blur-sm hover:bg-card/50 transition-colors cursor-pointer">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-full ${type.bgColor} flex items-center justify-center`}>
-                      <Icon className={`w-6 h-6 ${type.color}`} />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground">{type.title}</h4>
-                      <p className="text-sm text-muted-foreground">{type.description}</p>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-primary hover:text-primary/80"
-                      onClick={() => onTrainingTypeSelect(type.id)}
-                    >
-                      Select
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
+        <h3 className="text-lg font-semibold">Training Types</h3>
 
-      {/* Today's Goals */}
-      <Card className="border-border/50 bg-card/30 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
-            Today's Goals
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
-            <div>
-              <div className="font-medium text-foreground">Distance Goal</div>
-              <div className="text-sm text-muted-foreground">Run 2.5km</div>
-            </div>
-            <div className="text-xs text-muted-foreground">0/2.5km</div>
-          </div>
-          <div className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
-            <div>
-              <div className="font-medium text-foreground">Speed Target</div>
-              <div className="text-sm text-muted-foreground">Beat 28.5 km/h</div>
-            </div>
-            <div className="text-xs text-muted-foreground">Best: 27.2 km/h</div>
-          </div>
-        </CardContent>
-      </Card>
+        {trainingTypes.map(({ key, title, desc, Icon }) => (
+          <Card key={key} className="bg-white/5 border-white/10">
+            <CardContent className="p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="shrink-0">
+                  <Icon className="w-6 h-6 opacity-90" />
+                </div>
+                <div>
+                  <div className="text-xl font-semibold">{title}</div>
+                  <div className="text-sm text-muted-foreground">{desc}</div>
+                </div>
+              </div>
+
+              <Button variant="ghost" className="text-primary" onClick={() => onTrainingTypeSelect(key)}>
+                Select
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
