@@ -12,20 +12,20 @@ import EnduranceTraining from "@/components/training/EnduranceTraining";
 import PerformanceTest from "@/components/training/PerformanceTest";
 import CountdownScreen from "@/components/CountdownScreen";
 import LiveSessionTracking from "@/components/LiveSessionTracking";
-import TrainingComplete from "@/components/TrainingComplete";
+import TrainingComplete from "../components/TrainingComplete";
 import FullscreenOverlay from "@/components/FullscreenOverlay";
 import { toast } from "sonner";
 
 // IMPORTANT: use our wrapper (native on iOS, stub on web)
-import { BluetoothLe } from "@/capacitor/BluetoothLe";
+import BluetoothLe from "@/capacitor/BluetoothLe";
 
 /** ===== UUIDs (lowercased) ===== */
 const TRACKER_SERVICE = "12345678-1234-1234-1234-123456789abc".toLowerCase();
 const CHAR_KICKS      = "12345678-1234-1234-1234-123456789001".toLowerCase();
 const CHAR_DIST       = "12345678-1234-1234-1234-123456789002".toLowerCase();
 const CHAR_SPEED      = "12345678-1234-1234-1234-123456789003".toLowerCase();
-const CHAR_TIME       = "12345678-1234-1234-1234-123456789004".toLowerCase(); // (minutes; we tick seconds locally)
-const CHAR_CMD        = "12345678-1234-1234-1234-123456789005".toLowerCase(); // optional reset command (best-effort)
+const CHAR_TIME       = "12345678-1234-1234-1234-123456789004".toLowerCase(); // minutes; we tick seconds locally
+const CHAR_CMD        = "12345678-1234-1234-1234-123456789005".toLowerCase(); // optional reset command
 
 const LAST_DEVICE_KEY = "pptracker:lastDeviceId";
 const SESSIONS_KEY    = "pptracker:sessions";
@@ -42,7 +42,7 @@ const saveSession = (summary: any) => {
   } catch {}
 };
 
-/** little-endian uint32 from hex */
+/** little-endian uint32 from hex/base64 */
 function hexToUint32LE(hex?: string): number {
   if (!hex) return 0;
   const clean = hex.replace(/\s+/g, "").toLowerCase();
@@ -65,7 +65,7 @@ const Index = () => {
     distanceKm: number; kicks: number; maxSpeed: number; durationSec: number;
   }>(null);
 
-  /** Other UI “pages” */
+  /** Tabs & training */
   const [showProfile, setShowProfile]           = useState(false);
   const [showGoalsRewards, setShowGoalsRewards] = useState(false);
   const [activeTab, setActiveTab] = useState<
@@ -77,13 +77,13 @@ const Index = () => {
     name: "Alex Johnson",
     position: "Midfielder",
     team: "FC Thunder",
-    avatar: "/src/assets/soccer-player-avatar.jpg", // ok to leave; 404 in web is cosmetic
+    avatar: "/src/assets/soccer-player-avatar.jpg", // 404 in web is cosmetic
     level: "Pro",
     weeklyGoal: 5,
     currentStreak: 3,
   });
 
-  /** Live data shown during a session */
+  /** Live data during a session */
   const [liveData, setLiveData] = useState({
     speed: 0,      // km/h (one decimal)
     distance: 0,   // km (device sends meters; we convert)
@@ -91,10 +91,7 @@ const Index = () => {
     sessionTime: 0 // seconds
   });
 
-  /** Local timer tick */
   const tickRef = useRef<any>(null);
-
-  /** Dedup the “connected” toast (some paths may fire the event twice near-simultaneously) */
   const lastConnectToastAt = useRef(0);
 
   /** Global bridges */
@@ -124,7 +121,7 @@ const Index = () => {
     };
   }, []);
 
-  /** Notifications → liveData (speed / kicks / distance) */
+  /** Notifications → liveData */
   useEffect(() => {
     if (!currentSession) return;
 
@@ -138,8 +135,8 @@ const Index = () => {
       setLiveData(prev => {
         const next = { ...prev };
         if (charId.endsWith(CHAR_KICKS.slice(-4))) next.kicks    = value;
-        else if (charId.endsWith(CHAR_DIST.slice(-4)))  next.distance = value / 1000; // meters → km
-        else if (charId.endsWith(CHAR_SPEED.slice(-4))) next.speed    = value / 10;   // /10 for one decimal
+        else if (charId.endsWith(CHAR_DIST.slice(-4)))  next.distance = value / 1000;
+        else if (charId.endsWith(CHAR_SPEED.slice(-4))) next.speed    = value / 10;
         return next;
       });
     };
@@ -242,12 +239,11 @@ const Index = () => {
   };
 
   const handleEnd  = () => {
-    // Build summary from live data
     const summary = {
       at: new Date().toISOString(),
       distanceKm: liveData.distance || 0,
       kicks: liveData.kicks || 0,
-      maxSpeed: liveData.speed || 0,       // (using last speed as fastest demo)
+      maxSpeed: liveData.speed || 0, // using last speed as fastest demo
       durationSec: liveData.sessionTime || 0,
     };
     saveSession(summary);
@@ -348,12 +344,9 @@ const Index = () => {
         <div className="px-4 pt-12 max-w-sm mx-auto pb-32">{Component}</div>
         <BottomNavigation
           activeTab={activeTab}
-          onTabChange={(tab) => {
-            setCurrentTrainingType(null);
-            setShowGoalsRewards(false);
-            setShowProfile(false);
-            setActiveTab(tab);
-          }}
+          onTabChange={(tab: string) =>
+            setActiveTab(tab as "dashboard" | "performance" | "training" | "goals" | "account")
+          }
         />
       </div>
     );
@@ -363,7 +356,14 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-app-bg-from via-app-bg-via to-app-bg-to">
       <div className="px-4 pt-12 max-w-sm mx-auto pb-32">{renderTabContent()}</div>
 
-      {!hasOverlay && <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />}
+      {!hasOverlay && (
+        <BottomNavigation
+          activeTab={activeTab}
+          onTabChange={(tab: string) =>
+            setActiveTab(tab as "dashboard" | "performance" | "training" | "goals" | "account")
+          }
+        />
+      )}
 
       {showCountdown && (
         <FullscreenOverlay>

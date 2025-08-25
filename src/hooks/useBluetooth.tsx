@@ -12,7 +12,7 @@ import React, {
 import type { PluginListenerHandle } from "@capacitor/core";
 
 // IMPORTANT: use our wrapper (native on iOS, stub on web)
-import { BluetoothLe } from "@/capacitor/BluetoothLe";
+import BluetoothLe from "@/capacitor/BluetoothLe";
 
 /** ====== Tracker UUIDs (keep lowercased) ====== */
 const TRACKER_SERVICE = "12345678-1234-1234-1234-123456789abc";
@@ -91,9 +91,7 @@ async function addAnyListener(
     }
   }
   return {
-    remove: async () => {
-      await Promise.all(handles.map((h) => h?.remove?.()));
-    },
+    remove: async () => { await Promise.all(handles.map((h) => h?.remove?.())); },
   } as PluginListenerHandle;
 }
 
@@ -168,7 +166,7 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const idx = prevState.findIndex((p) => p.deviceId === dev.deviceId);
             if (idx >= 0) {
               const copy = prevState.slice();
-              copy[idx = idx] = { ...copy[idx], ...dev };
+              copy[idx] = { ...copy[idx], ...dev }; // <-- fixed bug
               return copy;
             }
             return [...prevState, dev];
@@ -267,7 +265,6 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   /** ====== Connect (robust, discovery-first) ====== */
   const connectToDevice: BluetoothContextType["connectToDevice"] = useCallback(async (deviceIdParam?: string) => {
-    // already connected?
     if (connectedIdRef.current) {
       log("🔗 Already connected — skipping connect()");
       setIsConnected(true);
@@ -284,7 +281,6 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     let deviceId = deviceIdParam || connectedIdRef.current || getLastDevice() || undefined;
 
-    // If we don't have a discovered device in memory, do a short discovery pass.
     const knownInThisRun = deviceId ? devices.some(d => d.deviceId === deviceId) : false;
     if (!deviceId || !knownInThisRun) {
       log("🔍 Discovery scan before connect…");
@@ -322,7 +318,6 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     }
 
-    // success
     connectedIdRef.current = deviceId;
     saveLastDevice(deviceId);
 
@@ -439,7 +434,6 @@ export const BluetoothProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     })();
 
-    // Clear listeners on unmount
     return () => {
       try { scanSubRef.current?.remove(); } catch {}
       try { readSubRef.current?.remove(); } catch {}
