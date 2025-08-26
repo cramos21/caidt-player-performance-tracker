@@ -16,6 +16,9 @@ import TrainingComplete from "../components/TrainingComplete";
 import FullscreenOverlay from "@/components/FullscreenOverlay";
 import { toast } from "sonner";
 
+// Web-only information banner (safe on native; returns null there)
+import WebDemoBanner from "@/components/WebDemoBanner";
+
 // IMPORTANT: use our wrapper (native on iOS, stub on web)
 import BluetoothLe from "@/capacitor/BluetoothLe";
 
@@ -392,6 +395,9 @@ const Index = () => {
           />
         </FullscreenOverlay>
       )}
+
+      {/* Web-only info banner (no-op on native) */}
+      <WebDemoBanner />
     </div>
   );
 };
