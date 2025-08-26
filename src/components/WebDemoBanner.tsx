@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import { BluetoothOff } from "lucide-react";
+import { BluetoothOff, X } from "lucide-react";
 
 const isWeb = Capacitor.getPlatform() === "web";
 const STORAGE_KEY = "pptracker:hide-web-banner";
@@ -18,22 +18,34 @@ const WebDemoBanner: React.FC = () => {
   if (hidden) return null;
 
   return (
-    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50">
-      <div className="flex items-start gap-3 rounded-xl bg-slate-900/90 text-slate-100 px-4 py-3 shadow-lg ring-1 ring-white/10 backdrop-blur">
-        <BluetoothOff className="h-4 w-4 mt-0.5 opacity-80" />
-        <div className="text-xs leading-snug">
-          <strong className="font-semibold">Web demo</strong>: Bluetooth features
-          are simulated in the browser. Connect a physical tracker in the iOS app.
-        </div>
+    // Full width of the content column:
+    // - center it with left-1/2 & -translate-x-1/2
+    // - width is screen minus 2rem (matches px-4 container padding)
+    // - max-w-sm to match your cards
+    <div
+      className="fixed left-1/2 -translate-x-1/2 bottom-28 w-[calc(100%-2rem)] max-w-sm z-50"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="relative w-full rounded-xl bg-slate-900/90 text-slate-100 px-4 py-3 shadow-lg ring-1 ring-white/10 backdrop-blur">
         <button
-          className="ml-2 text-xs underline opacity-80 hover:opacity-100"
+          aria-label="Hide web demo notice"
+          className="absolute right-2 top-2 p-1 rounded-md hover:bg-white/10"
           onClick={() => {
             localStorage.setItem(STORAGE_KEY, "1");
             setHidden(true);
           }}
         >
-          Hide
+          <X className="h-4 w-4" />
         </button>
+
+        <div className="flex items-start gap-3 pr-6">
+          <BluetoothOff className="h-4 w-4 mt-0.5 opacity-80 shrink-0" />
+          <div className="text-xs leading-snug">
+            <strong className="font-semibold">Web demo</strong>: Bluetooth features
+            are simulated in the browser. Connect a physical tracker in the iOS app.
+          </div>
+        </div>
       </div>
     </div>
   );
