@@ -1,11 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ConnectTracker from "@/components/ConnectTracker";
 import { useBluetooth } from "@/hooks/useBluetooth";
-import { mapToDashboardStats } from "@/utils/dataMapping";
 import { Activity, Target, Trophy, Camera, Zap } from "lucide-react";
 
 interface DashboardTabProps {
@@ -13,13 +12,45 @@ interface DashboardTabProps {
   setIsConnected: (connected: boolean) => void;
   currentSession: number | null;
   setCurrentSession: (session: number | null) => void;
-  liveData: any;
+  liveData: any; // { distance: km, kicks: number, speed: number, sessionTime: sec }
   setLiveData: (data: any) => void;
   playerData: any;
   onShowProfile: () => void;
   goals: any[];
   onShowGoals: () => void;
 }
+
+/** ===== Today totals sourced from saved sessions ===== */
+const SESSIONS_KEY = "pptracker:sessions";
+
+type TodayTotals = { sessions: number; distanceKm: number; kicks: number };
+
+const isSameLocalDay = (iso: string) => {
+  const d = new Date(iso);
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+};
+
+const readTodayTotals = (): TodayTotals => {
+  try {
+    const arr = JSON.parse(localStorage.getItem(SESSIONS_KEY) || "[]");
+    const todays = Array.isArray(arr) ? arr.filter((s: any) => s?.at && isSameLocalDay(s.at)) : [];
+    return todays.reduce(
+      (acc: TodayTotals, s: any) => ({
+        sessions: acc.sessions + 1,
+        distanceKm: acc.distanceKm + (Number(s?.distanceKm) || 0),
+        kicks: acc.kicks + (Number(s?.kicks) || 0),
+      }),
+      { sessions: 0, distanceKm: 0, kicks: 0 }
+    );
+  } catch {
+    return { sessions: 0, distanceKm: 0, kicks: 0 };
+  }
+};
 
 const DashboardTab = ({
   isConnected,
@@ -40,7 +71,25 @@ const DashboardTab = ({
     setIsConnected(bluetoothConnected);
   }, [bluetoothConnected, setIsConnected]);
 
-  const todayStats = mapToDashboardStats(liveData || {}, null, !!currentSession);
+  // Maintain today's totals from saved sessions and update when sessions change
+  const [todaySaved, setTodaySaved] = useState<TodayTotals>(() => readTodayTotals());
+
+  useEffect(() => {
+    const load = () => setTodaySaved(readTodayTotals());
+    load(); // initial
+    window.addEventListener("sessions-updated", load);
+    return () => window.removeEventListener("sessions-updated", load);
+  }, []);
+
+  // While a session is running, show saved totals + current live stats.
+  const liveDistanceKm = Number(liveData?.distance) || 0; // liveData.distance is already in km
+  const liveKicks = Number(liveData?.kicks) || 0;
+
+  const display = {
+    sessions: todaySaved.sessions, // we only count completed sessions
+    distanceKm: todaySaved.distanceKm + (currentSession ? liveDistanceKm : 0),
+    kicks: todaySaved.kicks + (currentSession ? liveKicks : 0),
+  };
 
   const hasGoals = Array.isArray(goals) && goals.length > 0;
 
@@ -116,18 +165,18 @@ const DashboardTab = ({
         <CardContent>
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center p-3 rounded-lg bg-primary/10">
-              <div className="text-lg font-bold">{todayStats.sessionsCompleted}</div>
+              <div className="text-lg font-bold">{display.sessions}</div>
               <div className="text-xs text-muted-foreground">Sessions</div>
             </div>
             <div className="text-center p-3 rounded-lg bg-blue-500/10">
               <div className="text-lg font-bold text-blue-400">
-                {(todayStats.totalDistance ?? 0).toFixed(1)}km
+                {display.distanceKm.toFixed(1)}km
               </div>
               <div className="text-xs text-muted-foreground">Distance</div>
             </div>
             <div className="text-center p-3 rounded-lg bg-green-400/10">
               <div className="text-lg font-bold text-green-400">
-                {todayStats.totalKicks ?? 0}
+                {display.kicks}
               </div>
               <div className="text-xs text-muted-foreground">Kicks</div>
             </div>
